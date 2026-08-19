@@ -616,34 +616,6 @@
         </div>
     </div>
 
-    {{-- ===== NOTIFICACIÓN TOAST FLOTANTE ===== --}}
-    <div 
-        x-data="{ visible: false, mensaje: '', link: '{{ url('/carrito') }}' }"
-        @toast-carrito.window="mensaje = $event.detail.msg; visible = true; setTimeout(() => visible = false, 4000)"
-        x-show="visible"
-        x-cloak
-        x-transition:enter="transition ease-out duration-300 transform"
-        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:translate-x-4 scale-95"
-        x-transition:enter-end="opacity-100 translate-y-0 sm:translate-x-0 scale-100"
-        x-transition:leave="transition ease-in duration-200 transform"
-        x-transition:leave-start="opacity-100 translate-y-0 sm:translate-x-0 scale-100"
-        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:translate-x-4 scale-95"
-        class="fixed bottom-5 right-5 z-50 max-w-sm w-full bg-[#0f172a] text-white p-4 rounded-2xl shadow-2xl border border-gray-700 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3 min-w-0">
-            <span class="w-9 h-9 rounded-xl bg-[#7c3aed] text-white flex items-center justify-center shrink-0 text-sm shadow-sm">
-                🛒
-            </span>
-            <div class="min-w-0">
-                <p class="text-xs font-black text-white truncate" x-text="mensaje"></p>
-                <a :href="link" class="text-[11px] font-bold text-yellow-400 hover:text-yellow-300 underline mt-0.5 inline-block">
-                    Ver carrito de compras &rarr;
-                </a>
-            </div>
-        </div>
-        <button type="button" @click="visible = false" class="text-gray-400 hover:text-white p-1">
-            <i class="fa-solid fa-xmark text-xs"></i>
-        </button>
-    </div>
 
     {{-- Script Global para Manejo de Favoritos y Carrito --}}
     <script>
@@ -716,19 +688,23 @@
                     // Actualizar badge en header
                     window.dispatchEvent(new CustomEvent('carrito-actualizado', { detail: { count: data.cart_count } }));
                     
-                    // Mostrar notificación Toast
-                    window.dispatchEvent(new CustomEvent('toast-carrito', { detail: { msg: data.message } }));
+                    // Mostrar notificación Toast hermosa
+                    window.alertaToast(data.message || 'Producto añadido al carrito');
 
                     if(callback) {
                         callback(data);
                     }
                 } else {
-                    alert(data.message || 'No se pudo agregar el producto.');
+                    window.alertaAdvertencia(data.message || 'No se pudo agregar el producto.');
                 }
             })
-            .catch(err => console.error('Error al agregar al carrito:', err));
+            .catch(err => {
+                console.error('Error al agregar al carrito:', err);
+                window.alertaError('Ocurrió un inconveniente al comunicarse con el servidor.');
+            });
         };
     </script>
 
+    @include('partials.alertas')
 </body>
 </html>

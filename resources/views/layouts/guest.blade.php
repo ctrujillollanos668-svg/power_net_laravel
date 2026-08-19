@@ -72,5 +72,6 @@
         </div>
 
     </div>
+    @include('partials.alertas')
 </body>
 </html>

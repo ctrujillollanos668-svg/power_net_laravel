@@ -52,8 +52,8 @@
                             <span class="font-mono font-black text-gray-950">245-000192-84</span>
                             <button 
                                 type="button" 
-                                onclick="navigator.clipboard.writeText('24500019284'); alert('Número de cuenta copiado');"
-                                class="w-6 h-6 rounded-md bg-white border border-gray-200 text-gray-600 hover:text-black flex items-center justify-center text-[10px]" 
+                                onclick="navigator.clipboard.writeText('24500019284'); window.alertaToast('¡Número de cuenta copiado al portapapeles!');"
+                                class="w-6 h-6 rounded-md bg-white border border-gray-200 text-gray-600 hover:text-black flex items-center justify-center text-[10px] cursor-pointer" 
                                 title="Copiar">
                                 <i class="fa-solid fa-copy"></i>
                             </button>
@@ -102,8 +102,8 @@
                             <span class="font-mono font-black text-gray-950">300 892 4110</span>
                             <button 
                                 type="button" 
-                                onclick="navigator.clipboard.writeText('3008924110'); alert('Número copiado');"
-                                class="w-6 h-6 rounded-md bg-white border border-gray-200 text-gray-600 hover:text-black flex items-center justify-center text-[10px]" 
+                                onclick="navigator.clipboard.writeText('3008924110'); window.alertaToast('¡Número celular copiado al portapapeles!');"
+                                class="w-6 h-6 rounded-md bg-white border border-gray-200 text-gray-600 hover:text-black flex items-center justify-center text-[10px] cursor-pointer" 
                                 title="Copiar">
                                 <i class="fa-solid fa-copy"></i>
                             </button>

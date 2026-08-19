@@ -17,7 +17,7 @@
         <div>
             <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
                 <span>Mi Carrito</span>
-                <span class="text-sm font-bold text-[#7c3aed] bg-violet-50 px-3 py-1 rounded-full border border-violet-200" 
+                <span class="text-sm font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-full border border-slate-200" 
                       x-text="totalItems + ' artículo' + (totalItems === 1 ? '' : 's')">
                     {{ $totalItems }} artículos
                 </span>
@@ -25,15 +25,15 @@
             <p class="text-xs text-gray-500 mt-1">Revisa tus productos seleccionados y gestiona las cantidades antes de pagar.</p>
         </div>
 
-        @if(!empty($cart) && count($cart) > 0)
-            <button 
-                type="button" 
-                @click="vaciarCarrito()"
-                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200/80 transition shrink-0 self-start sm:self-auto">
-                <i class="fa-regular fa-trash-can"></i>
-                <span>Vaciar Carrito</span>
-            </button>
-        @endif
+        <button 
+            type="button" 
+            x-show="totalItems > 0"
+            x-cloak
+            @click="vaciarCarrito()"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200/80 transition shrink-0 self-start sm:self-auto cursor-pointer">
+            <i class="fa-regular fa-trash-can"></i>
+            <span>Vaciar Carrito</span>
+        </button>
     </div>
 
     {{-- Alerta Flash --}}
@@ -53,7 +53,7 @@
     <template x-if="totalItems === 0">
         {{-- Carrito Vacío --}}
         <div class="bg-white rounded-3xl p-12 text-center border border-gray-200/80 shadow-xs max-w-2xl mx-auto my-8">
-            <div class="w-24 h-24 bg-violet-50 rounded-full flex items-center justify-center text-4xl text-[#7c3aed] mx-auto mb-4 border border-violet-100">
+            <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center text-4xl text-slate-800 mx-auto mb-4 border border-slate-200">
                 🛒
             </div>
             <h2 class="text-xl font-black text-gray-900 mb-2">Tu carrito está vacío</h2>
@@ -140,7 +140,7 @@
                                     <span class="font-black text-xs text-gray-900 select-none px-2" x-text="item.cantidad"></span>
                                     <button 
                                         type="button" 
-                                        @click="if(item.cantidad < (item.stock || 1)) { cambiarCantidad(id, item.cantidad + 1) } else { alert('No puedes añadir más unidades. Solo hay ' + (item.stock || 1) + ' disponibles en stock.') }" 
+                                        @click="if(item.cantidad < (item.stock || 1)) { cambiarCantidad(id, item.cantidad + 1) } else { window.alertaAdvertencia('No puedes añadir más unidades. Solo hay ' + (item.stock || 1) + ' disponibles en stock.', 'Límite de Stock') }" 
                                         :disabled="item.cantidad >= (item.stock || 1)"
                                         :class="item.cantidad >= (item.stock || 1) ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-200 cursor-pointer'"
                                         class="w-7 h-7 rounded-lg bg-white shadow-2xs text-gray-900 font-black text-xs flex items-center justify-center transition">
@@ -159,7 +159,7 @@
                                     type="button" 
                                     @click="eliminarItem(id)" 
                                     title="Eliminar producto" 
-                                    class="w-8 h-8 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition flex items-center justify-center shrink-0">
+                                    class="w-8 h-8 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition flex items-center justify-center shrink-0 cursor-pointer">
                                     <i class="fa-regular fa-trash-can text-sm"></i>
                                 </button>
                             </div>
@@ -253,11 +253,11 @@
                         </div>
                         <div class="flex items-center gap-2.5">
                             <i class="fa-solid fa-truck-fast text-blue-500 text-sm"></i>
-                            <span>Despacho rápido a todo el país</span>
+                            <span>Envíos rápidos a todo el país</span>
                         </div>
                         <div class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-headset text-yellow-500 text-sm"></i>
-                            <span>Soporte técnico directo PowerNet</span>
+                            <i class="fa-solid fa-rotate-left text-purple-500 text-sm"></i>
+                            <span>Garantía oficial y devoluciones fáciles</span>
                         </div>
                     </div>
 
@@ -269,145 +269,169 @@
 
 </div>
 
+{{-- Script de Alpine para Gestión del Carrito --}}
 <script>
-function carritoManager() {
-    return {
-        items: @json($cart),
-        subtotal: {{ $subtotal }},
-        descuentoTotal: {{ $descuentoTotal }},
-        costoEnvio: {{ $costoEnvio }},
-        totalFinal: {{ $total }},
-        totalItems: {{ $totalItems }},
+    function carritoManager() {
+        return {
+            items: @json($cart),
+            subtotal: {{ $subtotal }},
+            descuentoTotal: {{ $descuentoTotal }},
+            costoEnvio: {{ $costoEnvio }},
+            totalFinal: {{ $total }},
+            totalItems: {{ $totalItems }},
 
-        get totalSinEnvio() {
-            return this.subtotal - this.descuentoTotal;
-        },
+            get totalSinEnvio() {
+                return this.subtotal - this.descuentoTotal;
+            },
 
-        formatoMoneda(monto) {
-            return '$' + new Intl.NumberFormat('es-CO').format(monto);
-        },
+            formatoMoneda(monto) {
+                return '$' + new Intl.NumberFormat('es-CO').format(monto);
+            },
 
-        async cambiarCantidad(id, cantidad) {
-            if (cantidad < 1) {
-                this.eliminarItem(id);
-                return;
-            }
+            async cambiarCantidad(id, cantidad) {
+                if (cantidad < 1) {
+                    this.eliminarItem(id);
+                    return;
+                }
 
-            try {
-                const response = await fetch('/carrito/actualizar/' + id, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ cantidad: cantidad })
+                try {
+                    const response = await fetch('/carrito/actualizar/' + id, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ cantidad: cantidad })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        if (data.eliminado) {
+                            delete this.items[id];
+                            if (data.message) window.alertaAdvertencia(data.message);
+                        } else if (this.items[id]) {
+                            this.items[id].cantidad = data.item_cantidad !== undefined ? data.item_cantidad : cantidad;
+                            if (data.stock_maximo !== undefined) {
+                                this.items[id].stock = data.stock_maximo;
+                            }
+                            if (data.warning) {
+                                window.alertaAdvertencia(data.warning);
+                            }
+                        }
+
+                        this.subtotal = data.subtotal;
+                        this.descuentoTotal = data.descuentoTotal;
+                        this.costoEnvio = data.costoEnvio;
+                        this.totalFinal = data.total;
+                        this.totalItems = data.cart_count;
+
+                        // Actualizar badge global
+                        window.dispatchEvent(new CustomEvent('carrito-actualizado', { detail: { count: data.cart_count } }));
+                    }
+                } catch (error) {
+                    console.error('Error al actualizar:', error);
+                }
+            },
+
+            async eliminarItem(id) {
+                const nombreItem = this.items[id]?.nombre || 'este producto';
+                const confirmado = await window.alertaConfirmar({
+                    titulo: '¿Eliminar producto?',
+                    texto: `¿Deseas retirar "${nombreItem}" de tu carrito de compras?`,
+                    icono: 'warning',
+                    textoConfirmar: 'Sí, eliminar',
+                    textoCancelar: 'Conservar',
+                    esPeligroso: true
                 });
 
-                const data = await response.json();
-                if (data.success) {
-                    if (data.eliminado) {
+                if (!confirmado) return;
+
+                try {
+                    const response = await fetch('/carrito/eliminar/' + id, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
                         delete this.items[id];
-                        if (data.message) alert(data.message);
-                    } else if (this.items[id]) {
-                        this.items[id].cantidad = data.item_cantidad !== undefined ? data.item_cantidad : cantidad;
-                        if (data.stock_maximo !== undefined) {
-                            this.items[id].stock = data.stock_maximo;
-                        }
-                        if (data.warning) {
-                            alert(data.warning);
-                        }
+                        this.totalItems = data.cart_count;
+                        this.recalcularTotales();
+
+                        window.alertaToast('Producto retirado del carrito', 'info');
+
+                        // Actualizar badge global
+                        window.dispatchEvent(new CustomEvent('carrito-actualizado', { detail: { count: data.cart_count } }));
                     }
-
-                    this.subtotal = data.subtotal;
-                    this.descuentoTotal = data.descuentoTotal;
-                    this.costoEnvio = data.costoEnvio;
-                    this.totalFinal = data.total;
-                    this.totalItems = data.cart_count;
-
-                    // Actualizar badge global
-                    window.dispatchEvent(new CustomEvent('carrito-actualizado', { detail: { count: data.cart_count } }));
+                } catch (error) {
+                    console.error('Error al eliminar:', error);
                 }
-            } catch (error) {
-                console.error('Error al actualizar:', error);
-            }
-        },
+            },
 
-        async eliminarItem(id) {
-            if (!confirm('¿Deseas eliminar este producto del carrito?')) return;
-
-            try {
-                const response = await fetch('/carrito/eliminar/' + id, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
+            async vaciarCarrito() {
+                const confirmado = await window.alertaConfirmar({
+                    titulo: '¿Vaciar carrito de compras?',
+                    texto: 'Se eliminarán todos los productos que tienes seleccionados actualmente.',
+                    icono: 'warning',
+                    textoConfirmar: 'Sí, vaciar todo',
+                    textoCancelar: 'Cancelar',
+                    esPeligroso: true
                 });
 
-                const data = await response.json();
-                if (data.success) {
-                    delete this.items[id];
-                    this.totalItems = data.cart_count;
-                    this.recalcularTotales();
+                if (!confirmado) return;
 
-                    // Actualizar badge global
-                    window.dispatchEvent(new CustomEvent('carrito-actualizado', { detail: { count: data.cart_count } }));
-                }
-            } catch (error) {
-                console.error('Error al eliminar:', error);
-            }
-        },
+                try {
+                    const response = await fetch('/carrito/vaciar', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
 
-        async vaciarCarrito() {
-            if (!confirm('¿Estás seguro de que deseas vaciar todo el carrito?')) return;
+                    const data = await response.json();
+                    if (data.success) {
+                        this.items = {};
+                        this.subtotal = 0;
+                        this.descuentoTotal = 0;
+                        this.costoEnvio = 0;
+                        this.totalFinal = 0;
+                        this.totalItems = 0;
 
-            try {
-                const response = await fetch('/carrito/vaciar', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
+                        window.alertaToast('El carrito ha sido vaciado correctamente', 'success');
+
+                        // Actualizar badge global
+                        window.dispatchEvent(new CustomEvent('carrito-actualizado', { detail: { count: 0 } }));
                     }
+                } catch (error) {
+                    console.error('Error al vaciar:', error);
+                }
+            },
+
+            recalcularTotales() {
+                let sub = 0;
+                let desc = 0;
+                let count = 0;
+
+                Object.values(this.items).forEach(item => {
+                    sub += item.precio * item.cantidad;
+                    if (item.precio_oferta && item.precio_oferta < item.precio) {
+                        desc += (item.precio - item.precio_oferta) * item.cantidad;
+                    }
+                    count += item.cantidad;
                 });
 
-                const data = await response.json();
-                if (data.success) {
-                    this.items = {};
-                    this.subtotal = 0;
-                    this.descuentoTotal = 0;
-                    this.costoEnvio = 0;
-                    this.totalFinal = 0;
-                    this.totalItems = 0;
-
-                    // Actualizar badge global
-                    window.dispatchEvent(new CustomEvent('carrito-actualizado', { detail: { count: 0 } }));
-                }
-            } catch (error) {
-                console.error('Error al vaciar:', error);
+                this.subtotal = sub;
+                this.descuentoTotal = desc;
+                this.totalItems = count;
+                this.costoEnvio = (sub - desc > 150000 || count === 0) ? 0 : 12000;
+                this.totalFinal = (sub - desc) + this.costoEnvio;
             }
-        },
-
-        recalcularTotales() {
-            let sub = 0;
-            let desc = 0;
-            let count = 0;
-
-            Object.values(this.items).forEach(item => {
-                sub += item.precio * item.cantidad;
-                if (item.precio_oferta && item.precio_oferta < item.precio) {
-                    desc += (item.precio - item.precio_oferta) * item.cantidad;
-                }
-                count += item.cantidad;
-            });
-
-            this.subtotal = sub;
-            this.descuentoTotal = desc;
-            this.totalItems = count;
-            this.costoEnvio = (sub - desc > 150000 || count === 0) ? 0 : 12000;
-            this.totalFinal = (sub - desc) + this.costoEnvio;
-        }
-    };
-}
+        };
+    }
 </script>
 @endsection
