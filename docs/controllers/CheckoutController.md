@@ -6,7 +6,7 @@
 ---
 
 ## 🎯 Propósito General
-Orquesta la finalización de compra. Captura los datos del comprador y la dirección de envío, valida la disponibilidad final de inventario y ejecuta una **transacción atómica (`DB::transaction`)** que crea el pedido, descuenta el stock de almacén, registra el pago, programa el despacho y vacía el carrito.
+Orquesta la finalización de compra. Captura los datos del comprador y la dirección de entrega, valida la disponibilidad final de inventario y ejecuta una **transacción atómica (`DB::transaction`)** que crea el pedido, descuenta el stock de almacén, registra el pago, programa el despacho y vacía el carrito.
 
 ---
 
@@ -29,7 +29,72 @@ use Illuminate\Support\Facades\DB;
 
 ## 🛠️ Explicación Detallada del Código por Método
 
-### 1. `procesar(Request $request)` - Creación Transaccional de la Orden
+### 1. `index()` - Pantalla de Checkout y Validación Previa
+
+#### 💻 Código Clave:
+```php
+public function index()
+{
+    $cart = session()->get('cart', []);
+
+    if (empty($cart)) {
+        return redirect()->route('carrito.index')->with('error', 'Tu carrito está vacío.');
+    }
+
+    // Valida y sincroniza stock antes de mostrar el formulario de pago
+    $cartModificado = false;
+    foreach ($cart as $id => &$item) {
+        $producto = Producto::find($item['id'] ?? $id);
+        if (!$producto || (int) $producto->stock <= 0) {
+            unset($cart[$id]);
+            $cartModificado = true;
+            continue;
+        }
+
+        $stockActual = (int) $producto->stock;
+        $item['stock'] = $stockActual;
+
+        if ($item['cantidad'] > $stockActual) {
+            $item['cantidad'] = $stockActual;
+            $cartModificado = true;
+        }
+    }
+    unset($item);
+
+    if ($cartModificado) {
+        session()->put('cart', $cart);
+        if (empty($cart)) {
+            return redirect()->route('carrito.index')->with('error', 'Los productos en tu carrito ya no tienen stock disponible.');
+        }
+    }
+
+    $subtotal = 0;
+    $descuentoTotal = 0;
+    $totalItems = 0;
+
+    foreach ($cart as $item) {
+        $subtotal += $item['precio'] * $item['cantidad'];
+        if (isset($item['precio_oferta']) && $item['precio_oferta'] < $item['precio']) {
+            $descuentoTotal += ($item['precio'] - $item['precio_oferta']) * $item['cantidad'];
+        }
+        $totalItems += $item['cantidad'];
+    }
+
+    $costoEnvio = ($subtotal - $descuentoTotal > 150000) ? 0 : 12000;
+    $total = ($subtotal - $descuentoTotal) + $costoEnvio;
+
+    $user = Auth::user();
+    $metodosPago = MetodoPago::where('estado', 1)->get();
+
+    return view('cliente.checkout.Checkout', compact(
+        'cart', 'subtotal', 'descuentoTotal', 'costoEnvio', 'total', 'totalItems', 'user', 'metodosPago'
+    ));
+}
+```
+
+---
+
+### 2. `procesar(Request $request)` - Creación Transaccional de la Orden
 
 #### 💻 Código Clave:
 ```php
@@ -52,7 +117,7 @@ public function procesar(Request $request)
 
     // Transacción atómica en Base de Datos
     return DB::transaction(function () use ($validated, $cart, $request) {
-        // 1. Crear o actualizar la Persona
+        // 1. Crear o reutilizar la Persona por su documento (Cédula/NIT)
         $persona = Persona::firstOrCreate(
             ['documento' => $validated['documento']],
             [
@@ -63,7 +128,7 @@ public function procesar(Request $request)
             ]
         );
 
-        // 2. Crear o actualizar el Cliente
+        // 2. Crear o reutilizar el registro del Cliente
         $cliente = Cliente::firstOrCreate(['persona_id' => $persona->id]);
 
         // 3. Calcular totales del carrito
@@ -84,7 +149,7 @@ public function procesar(Request $request)
             'estado_pedido' => 'En preparación',
         ]);
 
-        // 5. Guardar cada ítem del detalle y descontar stock
+        // 5. Guardar cada ítem del detalle y descontar stock con bloqueo de concurrencia
         foreach ($cart as $item) {
             $producto = Producto::lockForUpdate()->findOrFail($item['id']);
             
@@ -108,7 +173,7 @@ public function procesar(Request $request)
             ]);
         }
 
-        // 6. Generar Pago con factura única
+        // 6. Generar Pago con folio de factura único
         Pago::create([
             'pedido_id' => $pedido->id,
             'metodo_pago' => $validated['metodo_pago'],
@@ -135,8 +200,24 @@ public function procesar(Request $request)
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- **`DB::transaction(...)`**: Garantiza integridad total: si ocurre un error en cualquier punto (por ejemplo si un producto se queda sin stock a mitad de camino), toda la operación se revierte (`rollback`) y no se cobra ni descuenta nada a medias.
-- **`lockForUpdate()`**: Bloquea la fila del producto durante la transacción para evitar condiciones de carrera (*Race Conditions*) cuando dos clientes intentan comprar la última unidad al mismo segundo.
-- **`$producto->decrement('stock', $item['cantidad'])`**: Descuenta las unidades vendidas directamente del stock.
-- **`session()->forget('cart')`**: Limpia el carrito tras completar exitosamente la compra.
+---
+
+## 🛠️ Guía de Diagnóstico, Sustentación y Reparación
+
+### 1. ¿Cómo explicar este controlador en una sustentación?
+> *"El `CheckoutController` es el corazón transaccional del e-commerce. Utiliza `DB::transaction` para garantizar que la creación de la persona, cliente, pedido, detalles de compra, pago y envío se realicen como una sola unidad indivisible. Si ocurre un fallo (por ejemplo, si se agota el stock mientras el usuario paga con `lockForUpdate`), la base de datos realiza un Rollback automático para evitar órdenes incompletas o cobros sin productos."*
+
+### 2. ¿Qué tablas y campos se tocan si algo se borra o se daña?
+Si necesitas reconstruir o revisar una compra en la base de datos:
+1. **`personas`**: Guarda `documento`, `nombre_persona`, `correo`, `telefono`, `direccion`.
+2. **`clientes`**: Conecta `persona_id` con el sistema de pedidos.
+3. **`pedidos`**: Contiene `cliente_id`, `fecha_pedido`, `total_pedido`, `estado_pedido`.
+4. **`detalle_pedidos`**: Guarda `pedido_id`, `producto_id`, `cantidad`, `precio_unitario`, `subtotal`.
+5. **`pagos`**: Guarda `pedido_id`, `monto`, `metodo_pago`, `estado_pago`, `factura`.
+6. **`envios`**: Guarda `pedido_id`, `direccion_envio`, `empresa_envios`, `estado`, `costo`.
+7. **`productos`**: Se actualiza el campo `stock` con `$producto->decrement(...)`.
+
+### 3. Posibles errores y cómo solucionarlos:
+- **Error: "Stock insuficiente..."**: Ocurre si dos personas intentan comprar la última unidad al mismo tiempo. El `lockForUpdate()` protege la integridad y cancela la transacción limpia antes de generar una venta en negativo.
+- **Error con campos nulos en Persona**: Si el formulario no envía `documento`, `Persona::firstOrCreate` fallará. Revisa que el campo `documento` tenga la regla `'required'`.
+- **El carrito no se vacía tras pagar**: Verifica que `session()->forget('cart')` se ejecute antes del `return redirect()`.

@@ -76,12 +76,6 @@ public function index(Request $request)
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- **Filtros Combinables**: Permite filtrar stock por estado (`agotado`, `bajo`, `optimo`), categoría o proveedor sin perder la paginación.
-- **Cálculo de Capital Invertido (`SUM(stock * precio_compra)`)**: Calcula exactamente cuánto dinero tiene PowerNet invertido en bodega según el costo de compra de cada artículo.
-- **Cálculo de Margen Potencial**: Aplica la fórmula financiera de rentabilidad esperada:
-  $$\text{Margen \%} = \frac{\text{Valor Venta} - \text{Valor Costo}}{\text{Valor Venta}} \times 100$$
-
 ---
 
 ### 2. `ajustarStock(Request $request)` - Registro de Kardex y Ajuste Manual
@@ -133,31 +127,17 @@ public function ajustarStock(Request $request)
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- **Control de Negativo**: Impide salidas que superen las existencias físicas en almacén.
-- **Trazabilidad Inmutable (Kardex)**: Registra quién, cuándo, por qué y cuánto stock cambió, guardando tanto el `$stockAnterior` como el `$stockNuevo`.
-
 ---
 
-### 3. `movimientos(Request $request)` - Histórico de Transacciones de Bodega
+## 🛠️ Guía de Diagnóstico, Sustentación y Reparación
 
-#### 💻 Código Clave:
-```php
-public function movimientos(Request $request)
-{
-    $query = Inventario::with(['producto.imagenes', 'producto.categoria', 'pedido']);
+### 1. ¿Cómo explicar este controlador en una sustentación?
+> *"El `AdminInventarioController` maneja el control de existencias de PowerNet mediante un sistema de Kardex. Cuando se realiza un ajuste con `ajustarStock`, el controlador no solo actualiza la columna `stock` en la tabla `productos`, sino que genera una entrada inmutable en la tabla `inventarios` guardando el stock anterior, el nuevo stock, la cantidad movida y el motivo para auditoría contable."*
 
-    if ($request->filled('tipo') && $request->tipo !== 'todos') {
-        $query->where('tipo', $request->tipo);
-    }
+### 2. Tablas y campos afectados en MySQL:
+- **`productos`**: `stock`, `precio`, `precio_compra`.
+- **`inventarios`**: `producto_id`, `tipo` (`entrada`/`salida`), `cantidad`, `stock_anterior`, `stock_nuevo`, `motivo`, `pedido_id`.
 
-    $movimientos = $query->latest()->paginate(10)->withQueryString();
-    $totalEntradas = Inventario::where('tipo', 'entrada')->sum('cantidad');
-    $totalSalidas = Inventario::where('tipo', 'salida')->sum('cantidad');
-
-    return view('admin.inventario.movimientos', compact('movimientos', 'totalEntradas', 'totalSalidas'));
-}
-```
-
-#### 🔍 ¿Qué hace este código?
-- Muestra el historial completo de entradas y salidas de bodega con sumatorias totales para auditoría interna.
+### 3. Posibles errores y soluciones:
+- **Error al restar stock ("No puedes retirar X unidades...")**: Ocurre si la cantidad a sacar supera el stock disponible en bodega.
+- **El valor total de inventario da cero**: Verifica que los productos tengan cargados tanto `stock` como `precio_compra` en la base de datos.

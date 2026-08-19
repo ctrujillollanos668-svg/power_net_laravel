@@ -78,10 +78,6 @@ public function index()
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- **Protección contra Compras Fantasma**: Antes de mostrar el carrito, verifica el stock real en la base de datos para evitar que un cliente compre un producto que otro usuario acaba de agotar.
-- **Regla de Negocio de Envío**: Aplica flete de $12.000 COP si el pedido es menor o igual a $150.000 COP, o $0 (envío gratis) si supera dicho monto.
-
 ---
 
 ### 2. `agregar(Request $request, $id)` - Añadir Producto con Control de Stock
@@ -125,5 +121,28 @@ public function agregar(Request $request, $id)
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- Soporta tanto formularios clásicos como peticiones JavaScript (`fetch` / `axios`), respondiendo con JSON y actualizando el badge del carrito sin recargar la página.
+---
+
+## 🛠️ Guía de Diagnóstico, Sustentación y Reparación
+
+### 1. ¿Cómo explicar este controlador en una sustentación?
+> *"El `CarritoController` almacena temporalmente los artículos seleccionados en la sesión del servidor (`session('cart')`). Antes de renderizar la vista o procesar el pago, el método `index` auto-corrige el carrito contra la base de datos: si un producto fue agotado o se redujo su stock por otra venta, el controlador ajusta la cantidad en sesión automáticamente para evitar vender unidades inexistentes."*
+
+### 2. Estructura de la sesión `cart`:
+```php
+session('cart') => [
+    14 => [
+        'id' => 14,
+        'nombre' => 'Router Gigabit Wi-Fi 6',
+        'precio' => 180000.0,
+        'precio_oferta' => 155000.0,
+        'cantidad' => 2,
+        'stock' => 10,
+        'imagen' => 'router_65a7.webp'
+    ]
+]
+```
+
+### 3. Posibles errores y soluciones:
+- **El carrito aparece vacío tras agregar un producto**: Verifica que en el archivo `.env` la variable `SESSION_DRIVER=file` o `SESSION_DRIVER=database` esté configurada correctamente.
+- **El botón de agregar no actualiza el contador**: Si se usa AJAX, verifica que el archivo JavaScript lea la respuesta `response.data.cartCount` y actualice el elemento `<span id="cart-count">`.

@@ -21,11 +21,10 @@ use Illuminate\Http\Request;
 
 ---
 
-## 🛠️ Explicación Detallada del Código por Método
+## 🛠️ Explicación Detallada del Código con Trazabilidad
 
-### 1. `store(Request $request)` - Creación y Reposición Automática de Stock
+### 1. `store(Request $request)` - Registro y Reposición Automática de Stock
 
-#### 💻 Código Clave:
 ```php
 public function store(Request $request)
 {
@@ -36,7 +35,7 @@ public function store(Request $request)
         'estado' => 'required|string|max:50',
     ]);
 
-    // 1. Crear cabecera de la devolución
+    // 1. TRAZABILIDAD: Crea la cabecera del reclamo en la tabla 'devoluciones'
     $devolucion = Devolucion::create([
         'pedido_id' => $validated['pedido_id'],
         'fecha_devolucion' => now(),
@@ -46,7 +45,7 @@ public function store(Request $request)
         'motivo_rechazo' => null,
     ]);
 
-    // 2. Registrar detalle de productos y reintegrar stock si fue aprobada
+    // 2. TRAZABILIDAD EN CASCADA: Copia los ítems del pedido a 'detalle_devolucions'
     $pedido = Pedido::with('detalles.producto')->find($validated['pedido_id']);
     if ($pedido && $pedido->detalles) {
         foreach ($pedido->detalles as $detalle) {
@@ -57,7 +56,7 @@ public function store(Request $request)
                 'motivo' => $validated['motivo'],
             ]);
 
-            // Reincorporar stock automáticamente a bodega
+            // 3. TRAZABILIDAD DE STOCK: Si la devolución es aprobada, suma el stock en 'productos'
             if ($validated['estado'] === 'Aprobada' || $validated['estado'] === 'Completada') {
                 if ($detalle->producto) {
                     $detalle->producto->increment('stock', $detalle->cantidad);
@@ -70,15 +69,10 @@ public function store(Request $request)
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- **`$detalle->producto->increment('stock', $detalle->cantidad)`**: Suma de forma atómica y segura las unidades físicas devueltas al inventario disponible para que puedan ser vendidas nuevamente.
-- **Relación `DetalleDevolucion`**: Guarda el registro específico de cada producto, la cantidad y el motivo de garantía.
-
 ---
 
 ### 2. `updateEstado(Request $request, $id)` - Aprobación / Rechazo con Motivo
 
-#### 💻 Código Clave:
 ```php
 public function updateEstado(Request $request, $id)
 {
@@ -96,7 +90,7 @@ public function updateEstado(Request $request, $id)
         $devolucion->motivo_rechazo = $validated['motivo_rechazo'] ?? 'No cumple con las políticas de garantía.';
     }
 
-    // Si pasa a Aprobada/Completada desde Pendiente, suma el stock
+    // TRAZABILIDAD DE STOCK: Solo incrementa si pasa por primera vez a Aprobada/Completada
     if (in_array($validated['estado'], ['Aprobada', 'Completada']) && !in_array($estadoAnterior, ['Aprobada', 'Completada'])) {
         foreach ($devolucion->detalles as $detalle) {
             if ($detalle->producto) {
@@ -110,6 +104,34 @@ public function updateEstado(Request $request, $id)
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- Evita duplicar el stock si el administrador vuelve a guardar una devolución ya aprobada previamente, comprobando `$estadoAnterior`.
-- Registra el motivo formal de rechazo para que el cliente conozca la razón en su panel.
+---
+
+## 🔄 Trazabilidad del Flujo de Datos (Data Flow)
+
+```
+[Cliente o Admin radica Devolución]
+       ↓
+[Tabla 'devoluciones'] Genera ID Devolución, Pedido ID, Monto y Estado 'Pendiente'
+       ↓
+[Tabla 'detalle_devolucions'] Registra cada producto y cantidad reclamada
+       ↓
+[Evaluación Admin: updateEstado -> 'Aprobada']
+       ↓
+[Tabla 'productos'] Ejecuta '$producto->increment('stock', cantidad)' reponiendo existencias
+```
+
+---
+
+## 🛠️ Guía de Diagnóstico, Sustentación y Reparación
+
+### 1. ¿Cómo explicar este controlador en una sustentación?
+> *"El `AdminDevolucionController` automatiza la reversión logística. Cuando una devolución pasa a estado 'Aprobada', el controlador itera sobre `detalle_devolucions` y ejecuta un incremento atómico `$producto->increment('stock', $cantidad)` en la tabla `productos`, devolviendo la mercancía al inventario disponible sin requerir intervención manual en almacén."*
+
+### 2. Tablas y campos afectados en MySQL:
+- **`devoluciones`**: `pedido_id`, `fecha_devolucion`, `motivo`, `monto_devolucion`, `estado`, `motivo_rechazo`.
+- **`detalle_devolucions`**: `devolucione_id`, `producto_id`, `cantidad`, `motivo`.
+- **`productos`**: Campo `stock` (incrementado).
+
+### 3. ¿Qué pasa si algo se daña y cómo solucionarlo?
+- **El stock se sumó dos veces por error**: Esto ocurre si no se valida `$estadoAnterior`. El código actual ya previene la duplicidad validando `!in_array($estadoAnterior, ['Aprobada', 'Completada'])`.
+- **Error: "SQLSTATE[23000]: Integrity constraint violation: Column 'pedido_id' cannot be null"**: Ocurre si se intenta registrar una devolución sin seleccionar un pedido válido existente en la base de datos.

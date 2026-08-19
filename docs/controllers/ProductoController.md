@@ -90,11 +90,9 @@ public function store(Request $request)
 
         foreach ($request->file('imagenes') as $archivo) {
             if ($archivo->isValid()) {
-                // Genera nombre único y seguro
                 $nombreImagen = uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $archivo->getClientOriginalName());
                 $archivo->move($destPath, $nombreImagen);
 
-                // Guarda la relación en la tabla imagen_productos
                 $imagen = new imagen_producto();
                 $imagen->producto_id = $producto->id;
                 $imagen->imagen = $nombreImagen;
@@ -108,29 +106,13 @@ public function store(Request $request)
 ```
 
 #### 🔍 ¿Qué hace este código?
-- **Validaciones Rigurosas**: Verifica que la categoría y proveedor existan en sus respectivas tablas (`exists:categorias,id`), que el stock sea $\ge 0$ y que los archivos sean imágenes válidas de máximo 10MB (`10240 KB`).
-- **Manejo Seguro de Archivos**: Crea automáticamente el directorio `public/imagenes_productos/` si no existe. Genera nombres de archivo únicos con `uniqid()` para evitar sobreescrituras si dos usuarios suben fotos con el mismo nombre.
-- **Relación 1 a Muchos (`1:N`)**: Por cada imagen subida, crea un registro en `imagen_productos` vinculado al `$producto->id`.
+- **Validaciones**: Verifica que la categoría y proveedor existan en sus respectivas tablas (`exists:categorias,id`), que el stock sea $\ge 0$ y que los archivos sean imágenes válidas de máx 10MB (`10240 KB`).
+- **Manejo Seguro de Archivos**: Crea automáticamente el directorio `public/imagenes_productos/` si no existe. Genera nombres únicos con `uniqid()` para evitar sobreescritura.
+- **Relación 1:N**: Por cada imagen subida, crea un registro en `imagen_productos` vinculado al `$producto->id`.
 
 ---
 
-### 3. `show($id)` - Consulta JSON para Modales
-
-#### 💻 Código Clave:
-```php
-public function show(string $id)
-{
-    $producto = Producto::with(['categoria', 'imagenes', 'proveedor', 'ofertas'])->findOrFail($id);
-    return response()->json($producto);
-}
-```
-
-#### 🔍 ¿Qué hace este código?
-- Retorna el objeto del producto con todas sus relaciones en formato JSON. Se utiliza desde JavaScript para abrir modales de edición o vista previa instantánea sin tener que recargar toda la página web.
-
----
-
-### 4. `destroy($id)` - Eliminación y Limpieza en Disco
+### 3. `destroy($id)` - Eliminación y Limpieza en Disco
 
 #### 💻 Código Clave:
 ```php
@@ -152,5 +134,18 @@ public function destroy(string $id)
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- **`unlink($rutaArchivo)`**: Elimina los archivos de imagen físicos del servidor para no dejar imágenes "huérfanas" que consuman espacio en disco antes de borrar el producto de la base de datos.
+---
+
+## 🛠️ Guía de Diagnóstico, Sustentación y Reparación
+
+### 1. ¿Cómo explicar este controlador en una sustentación?
+> *"El `ProductoController` gestiona el catálogo de PowerNet implementando el patrón CRUD. En el método `store`, además de validar tipos y llaves foráneas (`categoria_id`, `proveedor_id`), procesa múltiples archivos binarios con `move()` guardándolos en `public/imagenes_productos/` y asociando sus nombres a la tabla `imagen_productos`. Al eliminar un producto con `destroy`, ejecuta un `unlink()` para liberar espacio en disco del servidor."*
+
+### 2. Tablas y campos afectados en MySQL:
+- **`productos`**: `nombre`, `descripcion`, `categoria_id`, `proveedor_id`, `stock`, `disponibilidad`, `precio`, `precio_compra`.
+- **`imagen_productos`**: `producto_id`, `imagen` (nombre del archivo).
+- **`categorias`** y **`proveedores`**: Tablas padre referenciadas por ID.
+
+### 3. Posibles errores y soluciones:
+- **Error: "The imagenes.* failed to upload" o pantalla blanca al subir imagen**: La imagen supera el límite de PHP. Revisa `upload_max_filesize` en `php.ini` o valida que el formulario en Blade tenga `enctype="multipart/form-data"`.
+- **Las imágenes no cargan en el navegador**: Verifica que la carpeta física exista en `public/imagenes_productos/` y que en Blade se use `asset('imagenes_productos/' . $foto)`.

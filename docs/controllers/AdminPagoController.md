@@ -6,7 +6,7 @@
 ---
 
 ## 🎯 Propósito General
-Centraliza el control financiero y la conciliación de pagos de PowerNet. Permite a los administradores revisar los comprobantes de pago subidos por los clientes, validar transacciones (Nequi, Bancolombia, Tarjeta, etc.), aprobar/rechazar pagos y sincronizar el estado del pedido.
+Centraliza el control financiero, conciliación de pagos y auditoría de transacciones recibidas. Permite validar los métodos de pago (transferencias bancarias, tarjetas, contra entrega), actualizar estados de pago y reactivar pedidos asociados.
 
 ---
 
@@ -19,14 +19,14 @@ use Illuminate\Http\Request;
 
 ---
 
-## 🛠️ Explicación Detallada del Código por Método
+## 🛠️ Explicación Detallada del Código con Trazabilidad
 
 ### 1. `index(Request $request)` - Conciliación Financiera y Filtros
 
-#### 💻 Código Clave:
 ```php
 public function index(Request $request)
 {
+    // TRAZABILIDAD: Carga el Pago junto a Pedido -> Cliente -> Persona, Detalles y Envío
     $query = Pago::with([
         'pedido.cliente.persona',
         'pedido.detalles.producto.imagenes',
@@ -38,7 +38,7 @@ public function index(Request $request)
         $query->where('estado_pago', $request->estado);
     }
 
-    // Búsqueda por Factura, Pedido o Cliente
+    // Búsqueda multi-tabla por Factura, Pedido o Cliente
     if ($request->filled('q')) {
         $q = $request->q;
         $query->where(function ($sub) use ($q) {
@@ -55,7 +55,7 @@ public function index(Request $request)
 
     $pagos = $query->paginate(10)->withQueryString();
 
-    // Métricas Financieras
+    // Métricas Financieras en tiempo real
     $totalRecaudado = Pago::where('estado_pago', 'Aprobado')->sum('monto');
     $totalPendiente = Pago::whereIn('estado_pago', ['Pendiente', 'Pendiente al entregar'])->sum('monto');
     $transaccionesAprobadas = Pago::where('estado_pago', 'Aprobado')->count();
@@ -66,17 +66,14 @@ public function index(Request $request)
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- Separa claramente el dinero efectivamente recaudado (`estado_pago = 'Aprobado'`) del dinero pendiente de pago o confirmación (`'Pendiente al entregar'`), permitiendo un arqueo de caja exacto.
-
 ---
 
 ### 2. `update(Request $request, $id)` - Aprobación y Reactivación de Pedidos
 
-#### 💻 Código Clave:
 ```php
 public function update(Request $request, $id)
 {
+    // 1. Carga el pago con su pedido padre relacionado
     $pago = Pago::with('pedido')->findOrFail($id);
 
     $validated = $request->validate([
@@ -86,19 +83,20 @@ public function update(Request $request, $id)
         'monto' => 'required|numeric|min:0',
     ]);
 
+    // 2. TRAZABILIDAD: Actualizar datos propios del pago
     $pago->estado_pago = $validated['estado_pago'];
     $pago->metodo_pago = $validated['metodo_pago'];
     $pago->factura = $validated['factura'];
     $pago->monto = $validated['monto'];
 
-    // Si el pago es Aprobado, guarda la fecha/hora de confirmación
+    // Si el pago es Aprobado, guarda la fecha/hora exacta de confirmación
     if ($validated['estado_pago'] === 'Aprobado' && empty($pago->fecha_pago)) {
         $pago->fecha_pago = now();
     }
 
     $pago->save();
 
-    // Si el pedido estaba cancelado o retenido, lo reactiva automáticamente
+    // 3. TRAZABILIDAD EN CASCADA: Si el pedido estaba cancelado o retenido, lo reactiva
     if ($pago->pedido && $validated['estado_pago'] === 'Aprobado') {
         if ($pago->pedido->estado_pedido === 'Cancelado') {
             $pago->pedido->estado_pedido = 'En preparación';
@@ -111,6 +109,34 @@ public function update(Request $request, $id)
 }
 ```
 
-#### 🔍 ¿Qué hace este código?
-- **`$pago->fecha_pago = now()`**: Guarda automáticamente el instante exacto en que el administrador confirmó la recepción del dinero.
-- **Reactivación Automática**: Si el cliente completó el pago tras una cancelación previa, cambia el estado del pedido a `'En preparación'` para que bodega comience a alistarlo.
+---
+
+## 🔄 Trazabilidad del Flujo de Datos (Data Flow)
+
+```
+[Cliente reporta comprobante / pago] 
+       ↓ 
+[Tabla 'pagos'] Guarda: monto, metodo_pago, factura, estado_pago ('Pendiente')
+       ↓
+[AdminPagoController::update] 
+       ↓ (Valida dinero recibido en cuenta bancaria)
+Cambia 'estado_pago' a 'Aprobado' y asigna 'fecha_pago = now()'
+       ↓
+[Sincronización hacia 'pedidos']
+Si el pedido estaba 'Cancelado', lo pasa a 'En preparación' para que bodega despache
+```
+
+---
+
+## 🛠️ Guía de Diagnóstico, Sustentación y Reparación
+
+### 1. ¿Cómo explicar este controlador en una sustentación?
+> *"El `AdminPagoController` gestiona la conciliación contable de PowerNet. Separa el dinero recaudado de las cuentas por cobrar, y al momento de aprobar un pago, no solo estampa la marca de tiempo `fecha_pago = now()`, sino que reactiva el estado del pedido a 'En preparación', desbloqueando la orden para el área de despacho."*
+
+### 2. Tablas y campos afectados en MySQL:
+- **`pagos`**: `estado_pago`, `metodo_pago`, `factura`, `monto`, `fecha_pago`.
+- **`pedidos`**: `estado_pedido`.
+
+### 3. ¿Qué pasa si algo se daña y cómo solucionarlo?
+- **Error: "Monto total no coincide con la orden"**: Revisa si el cliente tenía descuento de oferta o costo de flete sumado en la columna `total_pedido` de la tabla `pedidos`.
+- **La fecha de pago no se guarda**: Verifica que el campo `fecha_pago` esté definido en el `$fillable` del modelo `Pago` o en la migración como `timestamp/dateTime` nullable.
