@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\DetalleDevolucion;
 use App\Models\Devolucion;
 use App\Models\Pedido;
-use App\Models\Producto;
 use Illuminate\Http\Request;
 
 class AdminDevolucionController extends Controller

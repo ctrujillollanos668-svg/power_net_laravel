@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\MetodoPago;
-use Illuminate\Http\Request;
 
 class ClienteMetodoPagoController extends Controller
 {

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Envio;
-use App\Models\Pago;
 use App\Models\Pedido;
 use Illuminate\Http\Request;
 

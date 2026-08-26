@@ -12,15 +12,18 @@ class FavoritoController extends Controller
     /**
      * Muestra la lista de productos favoritos del cliente autenticado.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $favoritos = Auth::user()->productosFavoritos()
+        /** @var \App\Models\User $user */
+        $user = $request->user() ?? Auth::user();
+
+        $favoritos = $user->productosFavoritos()
             ->where('disponibilidad', 1)
             ->with(['imagenes', 'categoria', 'ofertaActiva'])
             ->latest('favoritos.created_at')
             ->paginate(10);
 
-        $totalFavoritos = Auth::user()->favoritos()->count();
+        $totalFavoritos = $user->favoritos()->count();
 
         return view('cliente.favorito.Favoritos', compact('favoritos', 'totalFavoritos'));
     }

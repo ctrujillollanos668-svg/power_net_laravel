@@ -15,7 +15,12 @@ class TiendaController extends Controller
      */
     private function getFavoritosIds()
     {
-        return Auth::check() ? Auth::user()->favoritos()->pluck('producto_id')->toArray() : [];
+        if (!Auth::check()) {
+            return [];
+        }
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        return $user->favoritos()->pluck('producto_id')->toArray();
     }
 
     /**
@@ -201,7 +206,12 @@ class TiendaController extends Controller
             ->take(4)
             ->get();
 
-        $esFavorito = Auth::check() ? Auth::user()->favoritos()->where('producto_id', $producto->id)->exists() : false;
+        $esFavorito = false;
+        if (Auth::check()) {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            $esFavorito = $user->favoritos()->where('producto_id', $producto->id)->exists();
+        }
         $favoritosIds = $this->getFavoritosIds();
 
         return view('cliente.producto.Detalle', compact('producto', 'relacionados', 'esFavorito', 'favoritosIds'));

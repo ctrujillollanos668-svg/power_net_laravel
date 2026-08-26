@@ -109,29 +109,29 @@
 
     {{-- ==================== MENSAJES DE ESTADO Y ERRORES ==================== --}}
     @if(session('Mensaje'))
-        <div class="mt-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg flex items-center justify-between shadow-xs">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                <span class="text-sm font-medium">{{ session('Mensaje') }}</span>
-            </div>
-            <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700">
-                <i class="fa-solid fa-xmark text-sm"></i>
-            </button>
+    <div class="mt-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg flex items-center justify-between shadow-xs">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-500"></i>
+            <span class="text-sm font-medium">{{ session('Mensaje') }}</span>
         </div>
+        <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700">
+            <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+    </div>
     @endif
 
     @if($errors->any())
-        <div class="mt-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg shadow-xs">
-            <div class="flex items-center gap-2 font-bold mb-1">
-                <i class="fa-solid fa-circle-exclamation text-red-500"></i>
-                <span class="text-sm">Por favor corrige los siguientes errores:</span>
-            </div>
-            <ul class="list-disc pl-7 text-xs space-y-0.5 font-semibold">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+    <div class="mt-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg shadow-xs">
+        <div class="flex items-center gap-2 font-bold mb-1">
+            <i class="fa-solid fa-circle-exclamation text-red-500"></i>
+            <span class="text-sm">Por favor corrige los siguientes errores:</span>
         </div>
+        <ul class="list-disc pl-7 text-xs space-y-0.5 font-semibold">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
     @endif
 
 
@@ -169,7 +169,7 @@
 
                     @forelse($productos as $producto)
                     @php
-                        $ofertaActiva = $producto->ofertas->where('estado', 'activa')->first();
+                    $ofertaActiva = $producto->ofertas->where('estado', 'activa')->first();
                     @endphp
 
                     <tr class="hover:bg-gray-50/70 transition-colors">
@@ -178,34 +178,34 @@
                         <td class="px-5 py-3.5">
                             <div class="flex items-center gap-2 flex-wrap">
                                 @if($producto->imagenes->count() > 0)
-                                    @foreach($producto->imagenes as $img)
-                                        <div class="relative group inline-block shrink-0">
-                                            <img
-                                                src="{{ asset('imagenes_productos/' . $img->imagen) }}"
-                                                alt="{{ $producto->nombre }}"
-                                                class="w-10 h-10 object-cover rounded-lg border border-gray-200 shadow-xs">
-                                            
-                                            {{-- Badge rojo (x) para eliminar foto individual --}}
-                                            <form
-                                                action="{{ route('productos.imagen.eliminar', $img->id) }}"
-                                                method="POST"
-                                                onsubmit="return confirm('¿Eliminar esta imagen?');"
-                                                class="absolute -top-1.5 -right-1.5">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button
-                                                    type="submit"
-                                                    title="Eliminar imagen"
-                                                    class="w-4 h-4 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center text-[9px] font-black shadow-sm transition">
-                                                    <i class="fa-solid fa-xmark text-[8px]"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    @endforeach
+                                @foreach($producto->imagenes as $img)
+                                <div class="relative group inline-block shrink-0">
+                                    <img
+                                        src="{{ asset('imagenes_productos/' . $img->imagen) }}"
+                                        alt="{{ $producto->nombre }}"
+                                        class="w-10 h-10 object-cover rounded-lg border border-gray-200 shadow-xs">
+
+                                    {{-- Badge rojo (x) para eliminar foto individual --}}
+                                    <form
+                                        action="{{ route('productos.imagen.eliminar', $img->id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('¿Eliminar esta imagen?');"
+                                        class="absolute -top-1.5 -right-1.5">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="submit"
+                                            title="Eliminar imagen"
+                                            class="w-4 h-4 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center text-[9px] font-black shadow-sm transition">
+                                            <i class="fa-solid fa-xmark text-[8px]"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                @endforeach
                                 @else
-                                    <div class="w-10 h-10 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-300">
-                                        <i class="fa-solid fa-image text-xs"></i>
-                                    </div>
+                                <div class="w-10 h-10 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-300">
+                                    <i class="fa-solid fa-image text-xs"></i>
+                                </div>
                                 @endif
                             </div>
                         </td>
@@ -214,7 +214,7 @@
                         <td class="px-5 py-3.5">
                             <p class="font-medium text-gray-800">{{ $producto->nombre }}</p>
                             @if($producto->descripcion)
-                                <p class="text-[11px] text-gray-400 truncate max-w-xs">{{ $producto->descripcion }}</p>
+                            <p class="text-[11px] text-gray-400 truncate max-w-xs">{{ $producto->descripcion }}</p>
                             @endif
                         </td>
 
@@ -246,13 +246,13 @@
                         {{-- 8. ESTADO --}}
                         <td class="px-5 py-3.5 whitespace-nowrap">
                             @if($producto->disponibilidad)
-                                <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-[#0f6848] text-white">
-                                    Activo
-                                </span>
+                            <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-[#0f6848] text-white">
+                                Activo
+                            </span>
                             @else
-                                <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700">
-                                    Inactivo
-                                </span>
+                            <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700">
+                                Inactivo
+                            </span>
                             @endif
                         </td>
 
@@ -270,7 +270,7 @@
                                 title="{{ $ofertaActiva ? 'Oferta Activa: -' . $ofertaActiva->descuento . '% ($' . number_format($ofertaActiva->precio_oferta, 0, ',', '.') . ')' : 'Crear oferta para este producto' }}">
                                 <i class="fa-solid fa-tag text-xs"></i>
                                 @if($ofertaActiva)
-                                    <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full ring-2 ring-white" title="Oferta activa"></span>
+                                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full ring-2 ring-white" title="Oferta activa"></span>
                                 @endif
                             </button>
                         </td>
@@ -348,9 +348,9 @@
 
         {{-- Paginación inferior --}}
         @if($productos->hasPages())
-            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-                {{ $productos->links() }}
-            </div>
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+            {{ $productos->links() }}
+        </div>
         @endif
 
     </div>
@@ -368,7 +368,7 @@
 
         {{-- Contenedor del modal --}}
         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden z-10" @click.stop>
-            
+
             {{-- Encabezado con toque ámbar --}}
             <div class="px-6 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
@@ -530,27 +530,27 @@
                 <div>
                     <label for="nombre" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Nombre</label>
                     <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" required
-                           class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm"
-                           placeholder="Ej. Lámpara LED Inteligente">
+                        class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm"
+                        placeholder="Ej. Lámpara LED Inteligente">
                 </div>
 
                 <div>
                     <label for="descripcion" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Descripción</label>
                     <textarea name="descripcion" id="descripcion" rows="3"
-                              class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm"
-                              placeholder="Breve descripción del producto...">{{ old('descripcion') }}</textarea>
+                        class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm"
+                        placeholder="Breve descripción del producto...">{{ old('descripcion') }}</textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="categoria_id" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Categoría</label>
                         <select name="categoria_id" id="categoria_id" required
-                                class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm">
+                            class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm">
                             <option value="">Seleccionar</option>
                             @foreach($categorias as $categoria)
-                                <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
-                                    {{ $categoria->nombre_categoria }}
-                                </option>
+                            <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
+                                {{ $categoria->nombre_categoria }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -558,12 +558,12 @@
                     <div>
                         <label for="proveedor_id" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Proveedor</label>
                         <select name="proveedor_id" id="proveedor_id" required
-                                class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm">
+                            class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm">
                             <option value="">Seleccionar</option>
                             @foreach($proveedores as $proveedor)
-                                <option value="{{ $proveedor->id }}" {{ old('proveedor_id') == $proveedor->id ? 'selected' : '' }}>
-                                    {{ $proveedor->nombre_proveedor }}
-                                </option>
+                            <option value="{{ $proveedor->id }}" {{ old('proveedor_id') == $proveedor->id ? 'selected' : '' }}>
+                                {{ $proveedor->nombre_proveedor }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -573,13 +573,13 @@
                     <div>
                         <label for="stock" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Stock</label>
                         <input type="number" name="stock" id="stock" value="{{ old('stock', 0) }}" min="0" required
-                               class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm">
+                            class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm">
                     </div>
 
                     <div>
                         <label for="disponibilidad" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Disponibilidad</label>
                         <select name="disponibilidad" id="disponibilidad" required
-                                class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm">
+                            class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm">
                             <option value="1" {{ old('disponibilidad', '1') == '1' ? 'selected' : '' }}>Disponible</option>
                             <option value="0" {{ old('disponibilidad') == '0' ? 'selected' : '' }}>No disponible</option>
                         </select>
@@ -590,31 +590,31 @@
                     <div>
                         <label for="precio" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Precio de Venta ($)</label>
                         <input type="number" name="precio" id="precio" value="{{ old('precio') }}" step="0.01" min="0" required
-                               class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm"
-                               placeholder="Ej. 100000">
+                            class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm"
+                            placeholder="Ej. 100000">
                     </div>
 
                     <div>
                         <label for="precio_compra" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Precio de Compra ($)</label>
                         <input type="number" name="precio_compra" id="precio_compra" value="{{ old('precio_compra') }}" step="0.01" min="0" required
-                               class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm"
-                               placeholder="Ej. 60000">
+                            class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm"
+                            placeholder="Ej. 60000">
                     </div>
                 </div>
 
                 <div>
                     <label for="imagenes" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Imágenes del producto</label>
                     <input type="file" name="imagenes[]" id="imagenes" accept="image/*" multiple
-                           class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                        class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <button type="button" @click="openModal = false"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                         Cancelar
                     </button>
                     <button type="submit"
-                            class="px-5 py-2 text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm transition">
+                        class="px-5 py-2 text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm transition">
                         Guardar Producto
                     </button>
                 </div>
@@ -652,23 +652,23 @@
                 <div>
                     <label for="edit_nombre" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Nombre</label>
                     <input type="text" name="nombre" id="edit_nombre" x-model="nombre" required
-                           class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                 </div>
 
                 <div>
                     <label for="edit_descripcion" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Descripción</label>
                     <textarea name="descripcion" id="edit_descripcion" rows="3" x-model="descripcion"
-                              class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"></textarea>
+                        class="w-full px-3.5 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"></textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="edit_categoria_id" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Categoría</label>
                         <select name="categoria_id" id="edit_categoria_id" x-model="categoria_id" required
-                                class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                             <option value="">Seleccionar</option>
                             @foreach($categorias as $categoria)
-                                <option value="{{ $categoria->id }}">{{ $categoria->nombre_categoria }}</option>
+                            <option value="{{ $categoria->id }}">{{ $categoria->nombre_categoria }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -676,10 +676,10 @@
                     <div>
                         <label for="edit_proveedor_id" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Proveedor</label>
                         <select name="proveedor_id" id="edit_proveedor_id" x-model="proveedor_id" required
-                                class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                             <option value="">Seleccionar</option>
                             @foreach($proveedores as $proveedor)
-                                <option value="{{ $proveedor->id }}">{{ $proveedor->nombre_proveedor }}</option>
+                            <option value="{{ $proveedor->id }}">{{ $proveedor->nombre_proveedor }}</option>
                             @endforeach
                         </select>
                     </div>

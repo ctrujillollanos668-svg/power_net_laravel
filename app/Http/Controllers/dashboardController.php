@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categoria;
 use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class dashboardController extends Controller
 {
@@ -15,7 +15,7 @@ class dashboardController extends Controller
      */
     public function index(Request $request)
     {
-        $role = auth()->user()->role_id;
+        $role = $request->user()?->role_id;
 
         if ($role == 1) {
             // Métricas fila 1
@@ -70,7 +70,7 @@ class dashboardController extends Controller
     {
         $usuario = User::findOrFail($id);
 
-        if (auth()->id() == $usuario->id) {
+        if (Auth::id() == $usuario->id) {
             return back()->with('error', 'No puedes cambiar tu propio rol de administrador mientras estás en sesión activa.');
         }
 

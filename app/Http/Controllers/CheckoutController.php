@@ -9,7 +9,6 @@ use App\Models\Pago;
 use App\Models\Pedido;
 use App\Models\Persona;
 use App\Models\Producto;
-use App\Models\User;
 use App\Models\MetodoPago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\DetallePedido;
 use App\Models\Pedido;
-use App\Models\Producto;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
