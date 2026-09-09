@@ -7,28 +7,28 @@
 
     {{-- ==================== FLASH NOTIFICATIONS ==================== --}}
     @if(session('success'))
-        <div class="px-4 py-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center justify-between text-xs font-bold shadow-xs transition animate-fade-in">
+        <div class="px-4 py-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 rounded-2xl flex items-center justify-between text-xs font-bold shadow-xs transition animate-fade-in">
             <div class="flex items-center gap-2.5">
                 <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">
                     <i class="fa-solid fa-check"></i>
                 </div>
                 <span>{{ session('success') }}</span>
             </div>
-            <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700 p-1 cursor-pointer">
+            <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-200 p-1 cursor-pointer">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="px-4 py-3.5 bg-red-50 border border-red-200 text-red-800 rounded-2xl flex items-center justify-between text-xs font-bold shadow-xs transition animate-fade-in">
+        <div class="px-4 py-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-red-800 dark:text-red-300 rounded-2xl flex items-center justify-between text-xs font-bold shadow-xs transition animate-fade-in">
             <div class="flex items-center gap-2.5">
                 <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
                 <span>{{ session('error') }}</span>
             </div>
-            <button type="button" @click="$el.parentElement.remove()" class="text-red-500 hover:text-red-700 p-1 cursor-pointer">
+            <button type="button" @click="$el.parentElement.remove()" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 p-1 cursor-pointer">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
         </div>
@@ -37,19 +37,19 @@
     {{-- ==================== ENCABEZADO ==================== --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-black text-[#0f172a] flex items-center gap-2.5 tracking-tight">
+            <h1 class="text-2xl font-black text-[#0f172a] dark:text-white flex items-center gap-2.5 tracking-tight transition-colors">
                 <span class="text-2xl">📊</span>
                 <span>Panel Administrador</span>
             </h1>
-            <p class="text-xs text-gray-500 mt-1 font-medium">Control global de métricas comerciales, inventario y gestión de usuarios</p>
+            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1 font-medium transition-colors">Control global de métricas comerciales, inventario y gestión de usuarios</p>
         </div>
 
         <div class="flex items-center gap-2.5">
-            <a href="{{ route('tienda.inicio') }}" target="_blank" class="px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 hover:text-black font-bold text-xs rounded-xl border border-gray-200/90 shadow-2xs transition flex items-center gap-2">
+            <a href="{{ route('tienda.inicio') }}" target="_blank" class="px-4 py-2.5 bg-white dark:bg-[#131b2e] hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-slate-200 hover:text-black dark:hover:text-white font-bold text-xs rounded-xl border border-gray-200/90 dark:border-slate-700/80 shadow-2xs transition flex items-center gap-2">
                 <i class="fa-solid fa-store text-yellow-500"></i>
                 <span>Ver Tienda</span>
             </a>
-            <a href="{{ route('productos.index') }}" class="px-4 py-2.5 bg-[#0f172a] hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2">
+            <a href="{{ route('productos.index') }}" class="px-4 py-2.5 bg-[#0f172a] dark:bg-violet-600 hover:bg-black dark:hover:bg-violet-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2">
                 <i class="fa-solid fa-plus text-yellow-400"></i>
                 <span>Nuevo Producto</span>
             </a>
@@ -60,21 +60,21 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4.5">
         
         {{-- 1. Productos --}}
-        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-            <span class="text-xs font-bold text-gray-500 block">Productos</span>
+        <div class="bg-white dark:bg-[#131b2e] rounded-2xl p-5 border border-gray-200/80 dark:border-slate-800/80 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+            <span class="text-xs font-bold text-gray-500 dark:text-slate-400 block">Productos</span>
             <div class="my-2">
-                <span class="text-3xl font-black text-gray-900 tracking-tight">{{ $totalProductos }}</span>
+                <span class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{{ $totalProductos }}</span>
             </div>
-            <span class="text-[11px] text-gray-500 font-medium">
+            <span class="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
                 {{ $productosActivos }} activos · {{ $productosInactivos }} inactivos
             </span>
         </div>
 
         {{-- 2. Valor Inventario --}}
-        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-            <span class="text-xs font-bold text-gray-500 block">Valor inventario</span>
+        <div class="bg-white dark:bg-[#131b2e] rounded-2xl p-5 border border-gray-200/80 dark:border-slate-800/80 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+            <span class="text-xs font-bold text-gray-500 dark:text-slate-400 block">Valor inventario</span>
             <div class="my-2">
-                <span class="text-3xl font-black text-gray-900 tracking-tight">${{ number_format($valorInventario, 0, ',', '.') }}</span>
+                <span class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">${{ number_format($valorInventario, 0, ',', '.') }}</span>
             </div>
             <span class="text-[11px] text-amber-500 font-bold flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block animate-pulse"></span>
@@ -83,23 +83,23 @@
         </div>
 
         {{-- 3. Ventas Totales --}}
-        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-            <span class="text-xs font-bold text-gray-500 block">Ventas totales</span>
+        <div class="bg-white dark:bg-[#131b2e] rounded-2xl p-5 border border-gray-200/80 dark:border-slate-800/80 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+            <span class="text-xs font-bold text-gray-500 dark:text-slate-400 block">Ventas totales</span>
             <div class="my-2">
-                <span class="text-3xl font-black text-gray-900 tracking-tight">${{ number_format($totalVentas, 0, ',', '.') }}</span>
+                <span class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">${{ number_format($totalVentas, 0, ',', '.') }}</span>
             </div>
-            <span class="text-[11px] text-gray-500 font-medium">
+            <span class="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
                 {{ $totalVentasCount }} ventas realizadas
             </span>
         </div>
 
         {{-- 4. Pedidos --}}
-        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-            <span class="text-xs font-bold text-gray-500 block">Pedidos</span>
+        <div class="bg-white dark:bg-[#131b2e] rounded-2xl p-5 border border-gray-200/80 dark:border-slate-800/80 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+            <span class="text-xs font-bold text-gray-500 dark:text-slate-400 block">Pedidos</span>
             <div class="my-2">
-                <span class="text-3xl font-black text-gray-900 tracking-tight">{{ $totalPedidos }}</span>
+                <span class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{{ $totalPedidos }}</span>
             </div>
-            <span class="text-[11px] text-gray-500 font-medium">
+            <span class="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
                 {{ $pedidosPendientes }} pendientes
             </span>
         </div>
@@ -110,37 +110,37 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4.5">
         
         {{-- Stock Bajo --}}
-        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+        <div class="bg-white dark:bg-[#131b2e] rounded-2xl p-5 border border-gray-200/80 dark:border-slate-800/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
             <div>
-                <span class="text-xs font-bold text-gray-600 block">Stock Bajo</span>
+                <span class="text-xs font-bold text-gray-600 dark:text-slate-300 block">Stock Bajo</span>
                 <span class="text-3xl font-black text-amber-500 my-1 block">{{ $productosStockBajo }}</span>
-                <span class="text-[11px] text-gray-400 font-medium">Productos críticos (≤5)</span>
+                <span class="text-[11px] text-gray-400 dark:text-slate-500 font-medium">Productos críticos (≤5)</span>
             </div>
-            <div class="w-12 h-12 rounded-full bg-amber-50 border border-amber-200/70 text-amber-500 flex items-center justify-center text-lg shrink-0 shadow-2xs">
+            <div class="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/50 text-amber-500 flex items-center justify-center text-lg shrink-0 shadow-2xs">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
         </div>
 
         {{-- Activos --}}
-        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+        <div class="bg-white dark:bg-[#131b2e] rounded-2xl p-5 border border-gray-200/80 dark:border-slate-800/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
             <div>
-                <span class="text-xs font-bold text-gray-600 block">Activos</span>
-                <span class="text-3xl font-black text-emerald-500 my-1 block">{{ $productosActivos }}</span>
-                <span class="text-[11px] text-gray-400 font-medium">Disponibles en tienda</span>
+                <span class="text-xs font-bold text-gray-600 dark:text-slate-300 block">Activos</span>
+                <span class="text-3xl font-black text-emerald-500 dark:text-emerald-400 my-1 block">{{ $productosActivos }}</span>
+                <span class="text-[11px] text-gray-400 dark:text-slate-500 font-medium">Disponibles en tienda</span>
             </div>
-            <div class="w-12 h-12 rounded-full bg-emerald-100/70 border border-emerald-200 text-emerald-600 flex items-center justify-center text-lg shrink-0 shadow-2xs">
+            <div class="w-12 h-12 rounded-full bg-emerald-100/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg shrink-0 shadow-2xs">
                 <i class="fa-solid fa-check"></i>
             </div>
         </div>
 
         {{-- Inactivos --}}
-        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+        <div class="bg-white dark:bg-[#131b2e] rounded-2xl p-5 border border-gray-200/80 dark:border-slate-800/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
             <div>
-                <span class="text-xs font-bold text-gray-600 block">Inactivos</span>
-                <span class="text-3xl font-black text-gray-800 my-1 block">{{ $productosInactivos }}</span>
-                <span class="text-[11px] text-gray-400 font-medium">No visibles</span>
+                <span class="text-xs font-bold text-gray-600 dark:text-slate-300 block">Inactivos</span>
+                <span class="text-3xl font-black text-gray-800 dark:text-slate-200 my-1 block">{{ $productosInactivos }}</span>
+                <span class="text-[11px] text-gray-400 dark:text-slate-500 font-medium">No visibles</span>
             </div>
-            <div class="w-12 h-12 rounded-full bg-gray-200/80 border border-gray-300 text-gray-500 flex items-center justify-center text-lg shrink-0 shadow-2xs">
+            <div class="w-12 h-12 rounded-full bg-gray-200/80 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-500 dark:text-slate-400 flex items-center justify-center text-lg shrink-0 shadow-2xs">
                 <i class="fa-solid fa-xmark"></i>
             </div>
         </div>
@@ -148,16 +148,16 @@
     </div>
 
     {{-- ==================== SECCIÓN: USUARIOS REGISTRADOS ==================== --}}
-    <div class="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
+    <div class="bg-white dark:bg-[#131b2e] rounded-2xl border border-gray-200/80 dark:border-slate-800/80 shadow-xs overflow-hidden transition-colors">
         
         {{-- Barra Superior: Título & Buscador --}}
-        <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="p-5 border-b border-gray-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-2.5">
-                <h2 class="text-base font-black text-[#0f172a] flex items-center gap-2 tracking-tight">
-                    <i class="fa-solid fa-users text-violet-600"></i>
+                <h2 class="text-base font-black text-[#0f172a] dark:text-white flex items-center gap-2 tracking-tight transition-colors">
+                    <i class="fa-solid fa-users text-violet-600 dark:text-violet-400"></i>
                     <span>Usuarios Registrados</span>
                 </h2>
-                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-violet-50 text-violet-700 border border-violet-100">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 border border-violet-100 dark:border-violet-800/50">
                     {{ $totalUsuariosCount }} total
                 </span>
             </div>
@@ -170,11 +170,11 @@
                         name="buscar_usuario" 
                         value="{{ request('buscar_usuario') }}"
                         placeholder="Buscar usuario..." 
-                        class="w-full pl-9 pr-8 py-2 rounded-xl border border-gray-200 bg-gray-50/50 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition shadow-2xs placeholder:text-gray-400">
-                    <i class="fa-solid fa-magnifying-glass text-gray-400 absolute left-3 text-xs pointer-events-none"></i>
+                        class="w-full pl-9 pr-8 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/60 text-xs font-medium text-gray-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition shadow-2xs placeholder:text-gray-400 dark:placeholder:text-slate-500">
+                    <i class="fa-solid fa-magnifying-glass text-gray-400 dark:text-slate-500 absolute left-3 text-xs pointer-events-none"></i>
                     
                     @if(request('buscar_usuario'))
-                        <a href="{{ route('dashboard') }}" class="absolute right-2.5 text-gray-400 hover:text-gray-600 p-0.5" title="Limpiar búsqueda">
+                        <a href="{{ route('dashboard') }}" class="absolute right-2.5 text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200 p-0.5" title="Limpiar búsqueda">
                             <i class="fa-solid fa-xmark text-xs"></i>
                         </a>
                     @endif
@@ -184,8 +184,8 @@
 
         {{-- Tabla de Usuarios --}}
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-gray-600">
-                <thead class="bg-gray-50/80 text-[11px] uppercase tracking-wider text-gray-400 font-bold border-b border-gray-100">
+            <table class="w-full text-left text-xs text-gray-600 dark:text-slate-300">
+                <thead class="bg-gray-50/80 dark:bg-slate-900/50 text-[11px] uppercase tracking-wider text-gray-400 dark:text-slate-400 font-bold border-b border-gray-100 dark:border-slate-800">
                     <tr>
                         <th class="px-6 py-3.5 w-16">#</th>
                         <th class="px-6 py-3.5">Nombre</th>
@@ -194,41 +194,41 @@
                         <th class="px-6 py-3.5 text-center w-28">Cambiar</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 font-medium">
+                <tbody class="divide-y divide-gray-100 dark:divide-slate-800 font-medium">
                     @forelse($usuarios as $u)
-                        <tr class="hover:bg-gray-50/60 transition group">
+                        <tr class="hover:bg-gray-50/60 dark:hover:bg-slate-800/50 transition group">
                             
                             {{-- ID --}}
-                            <td class="px-6 py-4 font-bold text-gray-400 text-xs">
+                            <td class="px-6 py-4 font-bold text-gray-400 dark:text-slate-500 text-xs">
                                 {{ $u->id }}
                             </td>
 
                             {{-- Nombre --}}
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2.5">
-                                    <div class="w-8 h-8 rounded-full {{ $u->role_id == 1 ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-700' }} font-black text-xs flex items-center justify-center shrink-0 uppercase border border-white shadow-2xs">
+                                    <div class="w-8 h-8 rounded-full {{ $u->role_id == 1 ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300' }} font-black text-xs flex items-center justify-center shrink-0 uppercase border border-white dark:border-slate-700 shadow-2xs">
                                         {{ substr($u->name, 0, 1) }}
                                     </div>
-                                    <span class="font-bold text-gray-900 text-xs block">
+                                    <span class="font-bold text-gray-900 dark:text-white text-xs block">
                                         {{ $u->name }}
                                     </span>
                                 </div>
                             </td>
 
                             {{-- Email --}}
-                            <td class="px-6 py-4 text-gray-600 text-xs font-mono">
+                            <td class="px-6 py-4 text-gray-600 dark:text-slate-400 text-xs font-mono">
                                 {{ $u->email }}
                             </td>
 
                             {{-- Rol Badge --}}
                             <td class="px-6 py-4">
                                 @if($u->role_id == 1)
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-[#0f172a] text-white shadow-2xs">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-[#0f172a] dark:bg-violet-600 text-white shadow-2xs">
                                         <i class="fa-solid fa-shield-halved text-yellow-400 text-[10px]"></i>
                                         <span>Admin</span>
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#334155] text-white shadow-2xs">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#334155] dark:bg-slate-700 text-white shadow-2xs">
                                         <span>Cliente</span>
                                     </span>
                                 @endif
@@ -237,7 +237,7 @@
                             {{-- Botón Cambiar Rol --}}
                             <td class="px-6 py-4 text-center">
                                 @if(auth()->id() == $u->id)
-                                    <span class="w-8 h-8 rounded-xl bg-gray-100 text-gray-300 inline-flex items-center justify-center cursor-not-allowed mx-auto" title="Tu usuario actual (en sesión)">
+                                    <span class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-300 dark:text-slate-600 inline-flex items-center justify-center cursor-not-allowed mx-auto" title="Tu usuario actual (en sesión)">
                                         <i class="fa-solid fa-lock text-xs"></i>
                                     </span>
                                 @else
@@ -246,7 +246,7 @@
                                         @method('PATCH')
                                         <button 
                                             type="submit" 
-                                            class="w-8 h-8 rounded-xl border border-blue-300 hover:border-blue-600 bg-white hover:bg-blue-50 text-blue-500 hover:text-blue-700 inline-flex items-center justify-center transition shadow-2xs cursor-pointer group-hover:scale-105"
+                                            class="w-8 h-8 rounded-xl border border-blue-300 dark:border-blue-700 hover:border-blue-600 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 inline-flex items-center justify-center transition shadow-2xs cursor-pointer group-hover:scale-105"
                                             title="Cambiar rol a {{ $u->role_id == 1 ? 'Cliente' : 'Administrador' }}">
                                             <i class="fa-solid fa-rotate text-xs"></i>
                                         </button>
@@ -257,11 +257,11 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
-                                <i class="fa-solid fa-user-xmark text-3xl mb-2 text-gray-300"></i>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-400 dark:text-slate-500">
+                                <i class="fa-solid fa-user-xmark text-3xl mb-2 text-gray-300 dark:text-slate-600"></i>
                                 <p class="text-xs font-bold">No se encontraron usuarios registrados.</p>
                                 @if(request('buscar_usuario'))
-                                    <a href="{{ route('dashboard') }}" class="text-xs font-bold text-violet-600 hover:underline mt-2 inline-block">
+                                    <a href="{{ route('dashboard') }}" class="text-xs font-bold text-violet-600 dark:text-violet-400 hover:underline mt-2 inline-block">
                                         Limpiar filtros de búsqueda
                                     </a>
                                 @endif
@@ -274,7 +274,7 @@
 
         {{-- Paginación --}}
         @if($usuarios->hasPages())
-            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+            <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/40">
                 {{ $usuarios->links() }}
             </div>
         @endif

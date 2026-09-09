@@ -6,7 +6,8 @@ use App\Models\Inventario;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Categoria;
+use App\Models\proveedor;
 class AdminInventarioController extends Controller
 {
     /**

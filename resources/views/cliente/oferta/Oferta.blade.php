@@ -41,29 +41,30 @@
                 $foto = $producto && $producto->imagenes && $producto->imagenes->count() > 0 ? $producto->imagenes->first()->imagen : null;
                 $esFav = $producto ? in_array($producto->id, $favoritosIds ?? []) : false;
                 $stockTotal = $producto ? ($producto->stock ?? 10) : 0;
-            @endphp
-            @if($producto)
-                <div class="bg-white rounded-[28px] border border-slate-100/90 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-5 flex flex-col justify-between group relative" 
+            @endphp            @if($producto)
+                <div class="bg-white rounded-[2rem] border border-slate-100/90 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-4 sm:p-5 flex flex-col justify-between group relative" 
                      x-data="{ liked: {{ $esFav ? 'true' : 'false' }}, qty: 1, maxStock: {{ $stockTotal > 0 ? $stockTotal : 1 }} }">
                     
-                    {{-- Parte Superior (Imagen y Badges) --}}
+                    {{-- Parte Superior (Imagen, Badges y Categoría) --}}
                     <div>
-                        <div class="relative w-full aspect-square bg-transparent flex items-center justify-center p-2 mb-3 overflow-hidden">
+                        <div class="relative w-full aspect-[4/3] rounded-2xl bg-slate-900 flex items-center justify-center p-3 mb-3.5 overflow-hidden group-hover:shadow-md transition">
                             
-                            {{-- Botón Me Encanta (Corazón) --}}
+                            {{-- Badge de Oferta (Esquina Superior Izquierda) --}}
+                            <span class="absolute top-2.5 left-2.5 bg-[#ef4444] text-white text-[11px] font-black uppercase px-2.5 py-1 rounded-lg z-20 shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-tag text-[10px]"></i>
+                                <span>-{{ $oferta->descuento }}%</span>
+                            </span>
+
+                            {{-- Botón Me Encanta (Corazón) (Esquina Superior Derecha) --}}
                             <button
                                 type="button"
                                 @click.stop.prevent="toggleFavoritoGlobal({{ $producto->id }}, data => liked = data.is_favorite)"
                                 title="Me encanta"
-                                class="absolute top-2 left-2 w-9 h-9 rounded-full bg-white shadow-sm border border-slate-100/90 flex items-center justify-center text-slate-400 hover:text-rose-500 transition z-20 hover:scale-110 cursor-pointer">
+                                class="absolute top-2.5 right-2.5 w-9 h-9 rounded-full bg-white/90 backdrop-blur-xs shadow-sm border border-slate-100/80 flex items-center justify-center text-slate-400 hover:text-rose-500 transition z-20 hover:scale-110 cursor-pointer">
                                 <i :class="liked ? 'fa-solid fa-heart text-rose-500 scale-110' : 'fa-regular fa-heart text-slate-400'" class="text-sm transition-transform duration-150"></i>
                             </button>
 
-                            {{-- Badge de Oferta --}}
-                            <span class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full z-10 shadow-sm">
-                                -{{ $oferta->descuento }}%
-                            </span>
-
+                            {{-- Imagen del Producto --}}
                             <a href="{{ route('tienda.detalle', $producto->id) }}" class="w-full h-full flex items-center justify-center">
                                 @if($foto)
                                     <img
@@ -71,75 +72,114 @@
                                         alt="{{ $producto->nombre }}"
                                         class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300">
                                 @else
-                                    <div class="flex flex-col items-center justify-center text-slate-300">
-                                        <i class="fa-solid fa-bolt text-4xl text-amber-400/60 mb-1"></i>
-                                        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">PowerNet</span>
+                                    <div class="flex flex-col items-center justify-center text-slate-400">
+                                        <i class="fa-solid fa-bolt text-4xl text-amber-400 mb-1"></i>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider">PowerNet</span>
                                     </div>
                                 @endif
                             </a>
+
+                            {{-- Píldora de Categoría (Esquina Inferior Izquierda sobre la foto) --}}
+                            <div class="absolute bottom-2.5 left-2.5 z-20">
+                                <span class="bg-slate-950/80 backdrop-blur-md text-white font-black text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-lg border border-white/10 shadow-xs">
+                                    {{ $producto->categoria->nombre ?? 'BOMBILLO LED' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Fila: Marca y Código PN --}}
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="text-xs font-bold text-slate-500">PowerNet</span>
+                            <span class="text-[10px] font-mono font-bold text-slate-400">PN-{{ str_pad($producto->id, 6, '0', STR_PAD_LEFT) }}</span>
                         </div>
 
                         {{-- Nombre del Producto --}}
                         <div class="mb-1">
-                            <a href="{{ route('tienda.detalle', $producto->id) }}" class="block text-base font-extrabold text-slate-900 line-clamp-1 hover:text-[#7c3aed] transition leading-tight" title="{{ $producto->nombre }}">
+                            <a href="{{ route('tienda.detalle', $producto->id) }}" class="block text-base font-black text-slate-900 line-clamp-1 hover:text-[#7c3aed] transition leading-tight" title="{{ $producto->nombre }}">
                                 {{ $producto->nombre }}
                             </a>
                         </div>
 
-                        {{-- Precio en Negro --}}
-                        <div class="mt-1 mb-3.5 flex items-baseline gap-2">
-                            <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                                ${{ number_format($oferta->precio_oferta, 0, ',', '.') }}
-                            </span>
-                            <span class="text-xs text-slate-400 line-through font-bold">
-                                ${{ number_format($producto->precio, 0, ',', '.') }}
-                            </span>
-                        </div>
+                        {{-- Descripción corta --}}
+                        <p class="text-xs text-slate-400 font-medium line-clamp-2 leading-relaxed mb-3 h-8">
+                            {{ $producto->descripcion ?? 'Iluminación y bombillos de alta durabilidad y eficiencia energética' }}
+                        </p>
 
-                        {{-- Selector de Cantidad (- 1 +) --}}
-                        <div class="bg-[#f1f5f9] rounded-2xl p-1 flex items-center justify-between w-32 mb-4">
-                            <button
-                                type="button"
-                                @click="if(qty > 1) qty--"
-                                class="w-8 h-8 rounded-xl bg-white shadow-xs hover:bg-slate-50 text-slate-800 font-black text-sm flex items-center justify-center transition cursor-pointer">
-                                <i class="fa-solid fa-minus text-[10px]"></i>
-                            </button>
-                            <span class="font-black text-sm text-slate-900 select-none px-2" x-text="qty"></span>
-                            <button
-                                type="button"
-                                @click="if(qty < maxStock) qty++"
-                                class="w-8 h-8 rounded-xl bg-white shadow-xs hover:bg-slate-50 text-slate-800 font-black text-sm flex items-center justify-center transition cursor-pointer">
-                                <i class="fa-solid fa-plus text-[10px]"></i>
-                            </button>
+                        {{-- Fila de Precio y Stock --}}
+                        <div class="mb-4 flex items-center justify-between gap-2">
+                            {{-- Precio --}}
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                                    ${{ number_format($oferta->precio_oferta, 0, ',', '.') }}
+                                </span>
+                                <span class="text-xs text-slate-400 line-through font-bold">
+                                    ${{ number_format($producto->precio, 0, ',', '.') }}
+                                </span>
+                            </div>
+
+                            {{-- Badge de Stock a la derecha --}}
+                            <div>
+                                @if($stockTotal > 0)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200/80">
+                                        Stock: {{ $stockTotal }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-500 border border-rose-200/80">
+                                        Agotado
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Parte Inferior (Botón Comprar, Icono Carrito y Stock) --}}
-                    <div>
-                        <div class="flex items-center gap-2 mb-2.5">
+                    {{-- Fila Inferior de Controles (Selector Cantidad, Botón Comprar, Botón Carrito) --}}
+                    <div class="pt-2 flex items-center gap-2">
+                        {{-- Selector de Cantidad (- 1 +) --}}
+                        <div class="bg-slate-100 rounded-full p-1 flex items-center justify-between w-28 shrink-0">
+                            <button
+                                type="button"
+                                @click="if(qty > 1) qty--"
+                                class="w-7 h-7 rounded-full bg-transparent hover:bg-white text-slate-500 hover:text-slate-800 font-black text-xs flex items-center justify-center transition cursor-pointer">
+                                <i class="fa-solid fa-minus text-[9px]"></i>
+                            </button>
+                            <span class="font-black text-xs text-slate-800 select-none px-1" x-text="qty"></span>
+                            <button
+                                type="button"
+                                @click="if(qty < maxStock) qty++"
+                                class="w-7 h-7 rounded-full bg-transparent hover:bg-white text-slate-500 hover:text-slate-800 font-black text-xs flex items-center justify-center transition cursor-pointer">
+                                <i class="fa-solid fa-plus text-[9px]"></i>
+                            </button>
+                        </div>
+
+                        {{-- Botón Comprar / Sin Stock --}}
+                        @if($stockTotal > 0)
                             <button
                                type="button"
                                @click="comprarProductoGlobal({{ $producto->id }}, qty)"
-                               class="flex-1 bg-[#111827] hover:bg-black text-white font-black text-sm py-3 px-5 rounded-2xl text-center transition shadow-md shadow-slate-900/10 cursor-pointer flex items-center justify-center">
+                               class="flex-1 bg-black hover:bg-slate-800 text-white font-black text-xs py-3 px-3 rounded-2xl text-center transition shadow-xs cursor-pointer flex items-center justify-center">
                                 Comprar
                             </button>
                             <button
                                type="button"
                                @click="agregarAlCarritoGlobal({{ $producto->id }}, qty)"
                                title="Añadir al carrito"
-                               class="w-12 h-12 rounded-2xl bg-[#f1f5f9] hover:bg-[#e2e8f0] text-slate-700 flex items-center justify-center transition shrink-0 shadow-2xs group/cart cursor-pointer">
-                                <i class="fa-solid fa-cart-shopping text-sm text-slate-500 group-hover/cart:text-slate-900 transition"></i>
+                               class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shrink-0 cursor-pointer">
+                                <i class="fa-solid fa-cart-shopping text-xs text-slate-600"></i>
                             </button>
-                        </div>
-
-                        {{-- Disponibilidad en Stock (Verde) --}}
-                        <div class="text-xs font-bold {{ $stockTotal > 0 ? 'text-[#10b981]' : 'text-rose-500' }}">
-                            @if($stockTotal > 0)
-                                <span>{{ $stockTotal }} disponibles</span>
-                            @else
-                                <span>Agotado</span>
-                            @endif
-                        </div>
+                        @else
+                            <button
+                               type="button"
+                               disabled
+                               class="flex-1 bg-slate-500 text-white font-bold text-xs py-3 px-3 rounded-2xl text-center cursor-not-allowed flex items-center justify-center">
+                                Sin Stock
+                            </button>
+                            <button
+                               type="button"
+                               disabled
+                               class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-300 flex items-center justify-center shrink-0 cursor-not-allowed">
+                                <i class="fa-solid fa-cart-shopping text-xs"></i>
+                            </button>
+                        @endif
                     </div>
 
                 </div>

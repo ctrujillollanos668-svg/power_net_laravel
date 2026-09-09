@@ -1,3 +1,4 @@
+
 @extends('layouts.tienda')
 
 @section('titulo', 'Finalizar Compra - Checkout')
