@@ -145,16 +145,17 @@
                     $esFav = in_array($product->id, $favoritosIds ?? []);
                     $stockTotal = $product->stock ?? 10;
                 @endphp
-                <div class="bg-white rounded-[2rem] border border-slate-100/90 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-4 sm:p-5 flex flex-col justify-between group relative" 
+                <div class="bg-white rounded-[28px] border border-slate-200/70 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-4 sm:p-5 flex flex-col justify-between group relative" 
                      x-data="{ liked: {{ $esFav ? 'true' : 'false' }}, qty: 1, maxStock: {{ $stockTotal > 0 ? $stockTotal : 1 }} }">
                     
-                    {{-- Parte Superior (Imagen, Badges y Categoría) --}}
+                    {{-- Parte Superior (Imagen, Badges, Info, Precio y Cantidad) --}}
                     <div>
-                        <div class="relative w-full aspect-[4/3] rounded-2xl bg-slate-900 flex items-center justify-center p-3 mb-3.5 overflow-hidden group-hover:shadow-md transition">
+                        {{-- Imagen del Producto con Badges --}}
+                        <div class="relative w-full aspect-[4/3] rounded-[22px] bg-slate-50 border border-slate-100/80 flex items-center justify-center p-0 mb-3.5 overflow-hidden group-hover:shadow-md transition">
                             
                             {{-- Badge de Oferta (Esquina Superior Izquierda) --}}
                             @if($tieneOferta)
-                                <span class="absolute top-2.5 left-2.5 bg-[#ef4444] text-white text-[11px] font-black uppercase px-2.5 py-1 rounded-lg z-20 shadow-sm flex items-center gap-1.5">
+                                <span class="absolute top-2.5 left-2.5 bg-[#ef4444] text-white text-[11px] font-bold uppercase px-2.5 py-1 rounded-lg z-20 shadow-sm flex items-center gap-1.5">
                                     <i class="fa-solid fa-tag text-[10px]"></i>
                                     <span>Oferta</span>
                                 </span>
@@ -169,15 +170,15 @@
                                 <i :class="liked ? 'fa-solid fa-heart text-rose-500 scale-110' : 'fa-regular fa-heart text-slate-400'" class="text-sm transition-transform duration-150"></i>
                             </button>
 
-                            {{-- Imagen del Producto --}}
+                            {{-- Imagen --}}
                             <a href="{{ route('tienda.detalle', $product->id) }}" class="w-full h-full flex items-center justify-center">
                                 @if($foto)
                                     <img
                                         src="{{ asset('imagenes_productos/' . $foto) }}"
                                         alt="{{ $product->nombre }}"
-                                        class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300">
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                 @else
-                                    <div class="flex flex-col items-center justify-center text-slate-400">
+                                    <div class="flex flex-col items-center justify-center text-slate-400 p-4">
                                         <i class="fa-solid fa-bolt text-4xl text-amber-400 mb-1"></i>
                                         <span class="text-[10px] font-bold uppercase tracking-wider">PowerNet</span>
                                     </div>
@@ -186,7 +187,7 @@
 
                             {{-- Píldora de Categoría (Esquina Inferior Izquierda sobre la foto) --}}
                             <div class="absolute bottom-2.5 left-2.5 z-20">
-                                <span class="bg-slate-950/80 backdrop-blur-md text-white font-black text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-lg border border-white/10 shadow-xs">
+                                <span class="bg-slate-950/85 backdrop-blur-md text-white font-bold text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-lg border border-white/10 shadow-xs">
                                     {{ $product->categoria->nombre ?? 'BOMBILLO LED' }}
                                 </span>
                             </div>
@@ -195,7 +196,7 @@
                         {{-- Fila: Marca y Código PN --}}
                         <div class="flex items-center justify-between gap-2 mb-1">
                             <span class="text-xs font-bold text-slate-500">PowerNet</span>
-                            <span class="text-[10px] font-mono font-bold text-slate-400">PN-{{ str_pad($product->id, 6, '0', STR_PAD_LEFT) }}</span>
+                            <span class="text-[11px] font-mono font-medium text-slate-400">PN-{{ str_pad($product->id, 6, '0', STR_PAD_LEFT) }}</span>
                         </div>
 
                         {{-- Nombre del Producto --}}
@@ -206,19 +207,19 @@
                         </div>
 
                         {{-- Descripción corta --}}
-                        <p class="text-xs text-slate-400 font-medium line-clamp-2 leading-relaxed mb-3 h-8">
+                        <p class="text-xs text-slate-400 font-normal line-clamp-2 leading-relaxed mb-3 min-h-[34px]">
                             {{ $product->descripcion ?? 'Iluminación y bombillos de alta durabilidad y eficiencia energética' }}
                         </p>
 
                         {{-- Fila de Precio y Stock --}}
-                        <div class="mb-4 flex items-center justify-between gap-2">
+                        <div class="mb-3 flex items-center justify-between gap-2">
                             {{-- Precio --}}
                             <div class="flex items-baseline gap-1.5">
                                 @if($tieneOferta)
                                     <span class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                                         ${{ number_format($product->ofertaActiva->precio_oferta, 0, ',', '.') }}
                                     </span>
-                                    <span class="text-xs text-slate-400 line-through font-bold">
+                                    <span class="text-xs text-slate-400 line-through font-semibold">
                                         ${{ number_format($product->precio, 0, ',', '.') }}
                                     </span>
                                 @else
@@ -231,68 +232,68 @@
                             {{-- Badge de Stock a la derecha --}}
                             <div>
                                 @if($stockTotal > 0)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200/80">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-[#ecfdf5] text-[#059669] border border-emerald-200/60">
                                         Stock: {{ $stockTotal }}
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-500 border border-rose-200/80">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-[#fef2f2] text-[#e11d48] border border-rose-200/60">
                                         Agotado
                                     </span>
                                 @endif
                             </div>
                         </div>
+
+                        {{-- Selector de Cantidad (- 1 +) en su propia fila independiente --}}
+                        <div class="mb-3.5">
+                            <div class="bg-[#f1f5f9] rounded-full px-3 py-1 flex items-center justify-between w-32 border border-slate-200/40">
+                                <button
+                                    type="button"
+                                    @click="if(qty > 1) qty--"
+                                    class="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 transition cursor-pointer">
+                                    <i class="fa-solid fa-minus text-[10px]"></i>
+                                </button>
+                                <span class="font-bold text-sm text-slate-900 select-none px-2" x-text="qty"></span>
+                                <button
+                                    type="button"
+                                    @click="if(qty < maxStock) qty++"
+                                    class="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 transition cursor-pointer">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    {{-- Fila Inferior de Controles (Selector Cantidad, Botón Comprar, Botón Carrito) --}}
-                    <div class="pt-2 flex items-center gap-2">
-                        {{-- Selector de Cantidad (- 1 +) --}}
-                        <div class="bg-slate-100 rounded-full p-1 flex items-center justify-between w-28 shrink-0">
-                            <button
-                                type="button"
-                                @click="if(qty > 1) qty--"
-                                class="w-7 h-7 rounded-full bg-transparent hover:bg-white text-slate-500 hover:text-slate-800 font-black text-xs flex items-center justify-center transition cursor-pointer">
-                                <i class="fa-solid fa-minus text-[9px]"></i>
-                            </button>
-                            <span class="font-black text-xs text-slate-800 select-none px-1" x-text="qty"></span>
-                            <button
-                                type="button"
-                                @click="if(qty < maxStock) qty++"
-                                class="w-7 h-7 rounded-full bg-transparent hover:bg-white text-slate-500 hover:text-slate-800 font-black text-xs flex items-center justify-center transition cursor-pointer">
-                                <i class="fa-solid fa-plus text-[9px]"></i>
-                            </button>
-                        </div>
-
-                        {{-- Botón Comprar / Sin Stock --}}
+                    {{-- Fila Inferior de Botones de Acción (Comprar / Sin Stock + Carrito) --}}
+                    <div class="flex items-center gap-2.5">
                         @if($stockTotal > 0)
                             <button
                                type="button"
                                @click="comprarProductoGlobal({{ $product->id }}, qty)"
-                               class="flex-1 bg-black hover:bg-slate-800 text-white font-black text-xs py-3 px-3 rounded-2xl text-center transition shadow-xs cursor-pointer flex items-center justify-center">
+                               class="flex-1 bg-black hover:bg-slate-800 text-white font-black text-sm py-3 px-4 rounded-2xl text-center transition shadow-sm hover:shadow cursor-pointer flex items-center justify-center">
                                 Comprar
                             </button>
                             <button
                                type="button"
                                @click="agregarAlCarritoGlobal({{ $product->id }}, qty)"
                                title="Añadir al carrito"
-                               class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shrink-0 cursor-pointer">
-                                <i class="fa-solid fa-cart-shopping text-xs text-slate-600"></i>
+                               class="w-12 h-12 rounded-2xl bg-[#f1f5f9] hover:bg-[#e2e8f0] text-slate-600 hover:text-slate-900 flex items-center justify-center transition shrink-0 cursor-pointer">
+                                <i class="fa-solid fa-cart-shopping text-sm"></i>
                             </button>
                         @else
                             <button
                                type="button"
                                disabled
-                               class="flex-1 bg-slate-500 text-white font-bold text-xs py-3 px-3 rounded-2xl text-center cursor-not-allowed flex items-center justify-center">
+                               class="flex-1 bg-[#737373] text-white font-bold text-sm py-3 px-4 rounded-2xl text-center cursor-not-allowed flex items-center justify-center">
                                 Sin Stock
                             </button>
                             <button
                                type="button"
                                disabled
-                               class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-300 flex items-center justify-center shrink-0 cursor-not-allowed">
-                                <i class="fa-solid fa-cart-shopping text-xs"></i>
+                               class="w-12 h-12 rounded-2xl bg-[#f8fafc] text-slate-300 flex items-center justify-center shrink-0 cursor-not-allowed">
+                                <i class="fa-solid fa-cart-shopping text-sm"></i>
                             </button>
                         @endif
                     </div>
-
                 </div>
             @empty
                 <div class="col-span-full bg-white rounded-3xl p-12 text-center text-gray-400 border border-gray-200">
