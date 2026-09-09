@@ -31,7 +31,16 @@
         ofertaDescuento: 10,
         ofertaFechaInicio: new Date().toISOString().split('T')[0],
         ofertaFechaFin: '',
-        ofertaEstado: 'activa',
+        // Visor de Imagen Ampliada
+        imagenModal: false,
+        imagenUrl: '',
+        imagenTitulo: '',
+
+        verImagen(url, titulo = '') {
+            this.imagenUrl = url;
+            this.imagenTitulo = titulo;
+            this.imagenModal = true;
+        },
 
         abrirEditar(producto) {
             this.editId = producto.id;
@@ -183,20 +192,23 @@
                                     <img
                                         src="{{ asset('imagenes_productos/' . $img->imagen) }}"
                                         alt="{{ $producto->nombre }}"
-                                        class="w-10 h-10 object-cover rounded-lg border border-gray-200 shadow-xs">
+                                        @click="verImagen('{{ asset('imagenes_productos/' . $img->imagen) }}', '{{ addslashes($producto->nombre) }}')"
+                                        class="w-10 h-10 object-cover rounded-lg border border-gray-200 shadow-xs cursor-pointer hover:opacity-85 hover:scale-105 hover:ring-2 hover:ring-indigo-500 transition-all duration-150"
+                                        title="Clic para ampliar imagen">
 
                                     {{-- Badge rojo (x) para eliminar foto individual --}}
                                     <form
                                         action="{{ route('productos.imagen.eliminar', $img->id) }}"
                                         method="POST"
                                         onsubmit="return confirm('¿Eliminar esta imagen?');"
-                                        class="absolute -top-1.5 -right-1.5">
+                                        class="absolute -top-1.5 -right-1.5 z-10"
+                                        @click.stop>
                                         @csrf
                                         @method('DELETE')
                                         <button
                                             type="submit"
                                             title="Eliminar imagen"
-                                            class="w-4 h-4 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center text-[9px] font-black shadow-sm transition">
+                                            class="w-4 h-4 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center text-[9px] font-black shadow-sm transition cursor-pointer">
                                             <i class="fa-solid fa-xmark text-[8px]"></i>
                                         </button>
                                     </form>
@@ -723,7 +735,10 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="img in imagenesActuales" :key="img.id">
                                 <div class="relative group">
-                                    <img :src="'{{ asset('imagenes_productos') }}/' + img.imagen" class="w-12 h-12 object-cover rounded-lg border border-gray-200">
+                                    <img :src="'{{ asset('imagenes_productos') }}/' + img.imagen" 
+                                         @click="verImagen('{{ asset('imagenes_productos') }}/' + img.imagen, nombre)"
+                                         class="w-12 h-12 object-cover rounded-lg border border-gray-200 cursor-pointer hover:scale-105 hover:ring-2 hover:ring-indigo-500 transition"
+                                         title="Clic para ampliar imagen">
                                 </div>
                             </template>
                         </div>
@@ -750,6 +765,59 @@
                 </div>
             </form>
 
+        </div>
+    </div>
+
+    {{-- ===== MODAL VISOR DE IMAGEN AMPLIADA (LIGHTBOX) ===== --}}
+    <div
+        x-show="imagenModal"
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @keydown.escape.window="imagenModal = false"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6"
+        @click.self="imagenModal = false">
+
+        <div
+            x-show="imagenModal"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="relative max-w-3xl w-full bg-slate-900/95 border border-slate-700/80 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col items-center overflow-hidden">
+
+            {{-- Encabezado con Título y Botón Cerrar --}}
+            <div class="w-full flex items-center justify-between pb-3 mb-3 border-b border-slate-700/60">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-image text-indigo-400 text-sm"></i>
+                    <span class="text-sm sm:text-base font-bold text-white line-clamp-1" x-text="imagenTitulo || 'Vista previa del producto'"></span>
+                </div>
+                <button
+                    type="button"
+                    @click="imagenModal = false"
+                    class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer border border-slate-700">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            {{-- Imagen Ampliada --}}
+            <div class="w-full max-h-[75vh] flex items-center justify-center p-2 overflow-hidden rounded-2xl bg-black/40">
+                <img
+                    :src="imagenUrl"
+                    :alt="imagenTitulo"
+                    class="max-h-[68vh] max-w-full object-contain rounded-xl shadow-lg transition-transform duration-200">
+            </div>
+
+            {{-- Pie de Foto con Atajo --}}
+            <div class="mt-3 text-center">
+                <span class="text-[11px] text-slate-400 font-medium">Presiona <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-300 font-mono text-[10px]">ESC</kbd> o haz clic afuera para cerrar</span>
+            </div>
         </div>
     </div>
 
