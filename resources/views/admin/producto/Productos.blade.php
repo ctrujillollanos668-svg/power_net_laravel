@@ -100,16 +100,16 @@
     {{-- ==================== TÍTULO Y BOTÓN ==================== --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white transition-colors">
                 Gestión de Productos
             </h1>
-            <p class="text-xs text-gray-500 mt-1">Administra el catálogo de productos, precios, ofertas y disponibilidad</p>
+            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1 transition-colors">Administra el catálogo de productos, precios, ofertas y disponibilidad</p>
         </div>
 
         <button
             type="button"
             @click="openModal = true"
-            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-lg font-semibold hover:bg-black transition shadow-sm">
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 dark:bg-violet-600 text-white rounded-lg font-semibold hover:bg-black dark:hover:bg-violet-700 transition shadow-sm cursor-pointer">
             <i class="fa-solid fa-plus text-xs"></i>
             Nuevo Producto
         </button>
@@ -118,19 +118,19 @@
 
     {{-- ==================== MENSAJES DE ESTADO Y ERRORES ==================== --}}
     @if(session('Mensaje'))
-    <div class="mt-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg flex items-center justify-between shadow-xs">
+    <div class="mt-4 px-4 py-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 rounded-lg flex items-center justify-between shadow-xs transition">
         <div class="flex items-center gap-2">
             <i class="fa-solid fa-circle-check text-emerald-500"></i>
             <span class="text-sm font-medium">{{ session('Mensaje') }}</span>
         </div>
-        <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700">
+        <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700 dark:text-emerald-400 cursor-pointer">
             <i class="fa-solid fa-xmark text-sm"></i>
         </button>
     </div>
     @endif
 
     @if($errors->any())
-    <div class="mt-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg shadow-xs">
+    <div class="mt-4 px-4 py-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-red-700 dark:text-red-300 rounded-lg shadow-xs transition">
         <div class="flex items-center gap-2 font-bold mb-1">
             <i class="fa-solid fa-circle-exclamation text-red-500"></i>
             <span class="text-sm">Por favor corrige los siguientes errores:</span>
@@ -145,15 +145,15 @@
 
 
     {{-- ==================== TABLA Y CONTADOR ==================== --}}
-    <div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-200/80 overflow-hidden">
+    <div class="mt-6 bg-white dark:bg-slate-900/90 rounded-xl shadow-sm border border-gray-200/80 dark:border-slate-800 overflow-hidden transition-colors">
 
         {{-- Barra de información de paginación superior --}}
-        <div class="px-6 py-3.5 border-b border-gray-100 flex items-center justify-between text-xs text-gray-500 bg-white">
+        <div class="px-6 py-3.5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between text-xs text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900/80 transition-colors">
             <div>
-                Mostrando <span class="font-bold text-gray-700">{{ $productos->count() }}</span> de <span class="font-bold text-gray-700">{{ $productos->total() }}</span> productos
+                Mostrando <span class="font-bold text-gray-700 dark:text-white">{{ $productos->count() }}</span> de <span class="font-bold text-gray-700 dark:text-white">{{ $productos->total() }}</span> productos
             </div>
             <div>
-                Página <span class="font-bold text-gray-700">{{ $productos->currentPage() }}</span> de <span class="font-bold text-gray-700">{{ $productos->lastPage() }}</span>
+                Página <span class="font-bold text-gray-700 dark:text-white">{{ $productos->currentPage() }}</span> de <span class="font-bold text-gray-700 dark:text-white">{{ $productos->lastPage() }}</span>
             </div>
         </div>
 
@@ -161,7 +161,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
                 <thead>
-                    <tr class="bg-gray-50/80 text-[11px] font-bold tracking-wider text-gray-500 uppercase border-b border-gray-100">
+                    <tr class="bg-gray-50/80 dark:bg-slate-900 text-[11px] font-bold tracking-wider text-gray-500 dark:text-slate-400 uppercase border-b border-gray-100 dark:border-slate-800 transition-colors">
                         <th class="px-5 py-3.5">IMAGEN</th>
                         <th class="px-5 py-3.5">NOMBRE</th>
                         <th class="px-5 py-3.5">PRECIO</th>
@@ -174,14 +174,14 @@
                         <th class="px-5 py-3.5 text-center">ACCIONES</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 bg-white">
+                <tbody class="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900/60 transition-colors">
 
                     @forelse($productos as $producto)
                     @php
                     $ofertaActiva = $producto->ofertas->where('estado', 'activa')->first();
                     @endphp
 
-                    <tr class="hover:bg-gray-50/70 transition-colors">
+                    <tr class="hover:bg-gray-50/70 dark:hover:bg-slate-800/60 transition-colors">
 
                         {{-- 1. IMAGEN --}}
                         <td class="px-5 py-3.5">
@@ -193,7 +193,7 @@
                                         src="{{ asset('imagenes_productos/' . $img->imagen) }}"
                                         alt="{{ $producto->nombre }}"
                                         @click="verImagen('{{ asset('imagenes_productos/' . $img->imagen) }}', '{{ addslashes($producto->nombre) }}')"
-                                        class="w-10 h-10 object-cover rounded-lg border border-gray-200 shadow-xs cursor-pointer hover:opacity-85 hover:scale-105 hover:ring-2 hover:ring-indigo-500 transition-all duration-150"
+                                        class="w-10 h-10 object-cover rounded-lg border border-gray-200 dark:border-slate-700 shadow-xs cursor-pointer hover:opacity-85 hover:scale-105 hover:ring-2 hover:ring-indigo-500 transition-all duration-150"
                                         title="Clic para ampliar imagen">
 
                                     {{-- Badge rojo (x) para eliminar foto individual --}}
@@ -215,7 +215,7 @@
                                 </div>
                                 @endforeach
                                 @else
-                                <div class="w-10 h-10 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-300">
+                                <div class="w-10 h-10 bg-gray-100 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 flex items-center justify-center text-gray-400 dark:text-slate-500">
                                     <i class="fa-solid fa-image text-xs"></i>
                                 </div>
                                 @endif
@@ -224,45 +224,45 @@
 
                         {{-- 2. NOMBRE --}}
                         <td class="px-5 py-3.5">
-                            <p class="font-medium text-gray-800">{{ $producto->nombre }}</p>
+                            <p class="font-medium text-gray-800 dark:text-slate-100">{{ $producto->nombre }}</p>
                             @if($producto->descripcion)
-                            <p class="text-[11px] text-gray-400 truncate max-w-xs">{{ $producto->descripcion }}</p>
+                            <p class="text-[11px] text-gray-400 dark:text-slate-400 truncate max-w-xs">{{ $producto->descripcion }}</p>
                             @endif
                         </td>
 
                         {{-- 3. PRECIO --}}
-                        <td class="px-5 py-3.5 font-normal text-gray-800 whitespace-nowrap">
+                        <td class="px-5 py-3.5 font-semibold text-gray-900 dark:text-slate-100 whitespace-nowrap">
                             ${{ number_format($producto->precio, 0, ',', '.') }}
                         </td>
 
                         {{-- 4. PRECIO COMPRA --}}
-                        <td class="px-5 py-3.5 font-normal text-gray-800 whitespace-nowrap">
+                        <td class="px-5 py-3.5 font-normal text-gray-600 dark:text-slate-400 whitespace-nowrap">
                             ${{ number_format($producto->precio_compra, 0, ',', '.') }}
                         </td>
 
                         {{-- 5. STOCK --}}
-                        <td class="px-5 py-3.5 font-normal text-gray-800">
+                        <td class="px-5 py-3.5 font-bold {{ $producto->stock <= 5 ? 'text-amber-500 dark:text-amber-400' : 'text-gray-800 dark:text-slate-200' }}">
                             {{ $producto->stock }}
                         </td>
 
                         {{-- 6. CATEGORÍA --}}
-                        <td class="px-5 py-3.5 text-gray-700">
+                        <td class="px-5 py-3.5 text-gray-700 dark:text-slate-300">
                             {{ $producto->categoria->nombre_categoria ?? 'Sin categoría' }}
                         </td>
 
                         {{-- 7. PROVEEDOR --}}
-                        <td class="px-5 py-3.5 text-gray-700">
+                        <td class="px-5 py-3.5 text-gray-700 dark:text-slate-300">
                             {{ $producto->proveedor->nombre_proveedor ?? 'Sin proveedor' }}
                         </td>
 
                         {{-- 8. ESTADO --}}
                         <td class="px-5 py-3.5 whitespace-nowrap">
                             @if($producto->disponibilidad)
-                            <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-[#0f6848] text-white">
+                            <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-[#0f6848] dark:bg-emerald-950/60 dark:border dark:border-emerald-500/40 text-white dark:text-emerald-300 shadow-2xs">
                                 Activo
                             </span>
                             @else
-                            <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700">
+                            <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-gray-200 dark:bg-slate-800 dark:border dark:border-slate-700 text-gray-700 dark:text-slate-400 shadow-2xs">
                                 Inactivo
                             </span>
                             @endif
@@ -278,11 +278,11 @@
                                     precio: {{ (float)$producto->precio }},
                                     oferta: @js($ofertaActiva)
                                 })"
-                                class="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-amber-400 text-amber-500 hover:bg-amber-50 hover:text-amber-600 transition shadow-xs relative"
+                                class="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-amber-400 dark:border-amber-500/60 text-amber-500 dark:text-amber-400 bg-white dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-600 dark:hover:text-amber-300 transition shadow-xs relative cursor-pointer"
                                 title="{{ $ofertaActiva ? 'Oferta Activa: -' . $ofertaActiva->descuento . '% ($' . number_format($ofertaActiva->precio_oferta, 0, ',', '.') . ')' : 'Crear oferta para este producto' }}">
                                 <i class="fa-solid fa-tag text-xs"></i>
                                 @if($ofertaActiva)
-                                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full ring-2 ring-white" title="Oferta activa"></span>
+                                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full ring-2 ring-white dark:ring-slate-900" title="Oferta activa"></span>
                                 @endif
                             </button>
                         </td>
@@ -297,7 +297,7 @@
                                     @method('PATCH')
                                     <button
                                         type="submit"
-                                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $producto->disponibilidad ? 'bg-blue-600' : 'bg-gray-300' }}"
+                                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $producto->disponibilidad ? 'bg-blue-600' : 'bg-gray-300 dark:bg-slate-700' }}"
                                         title="{{ $producto->disponibilidad ? 'Click para desactivar' : 'Click para activar' }}">
                                         <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out {{ $producto->disponibilidad ? 'translate-x-5' : 'translate-x-0' }}"></span>
                                     </button>
@@ -318,7 +318,7 @@
                                         precio_compra: {{ (float)$producto->precio_compra }},
                                         imagenes: @js($producto->imagenes)
                                     })"
-                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-blue-400 text-blue-500 hover:bg-blue-50 hover:text-blue-600 transition shadow-xs"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-blue-400 dark:border-blue-500/60 text-blue-500 dark:text-blue-400 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/40 hover:text-blue-600 dark:hover:text-blue-300 transition shadow-xs cursor-pointer"
                                     title="Editar">
                                     <i class="fa-solid fa-pen text-xs"></i>
                                 </button>
@@ -332,7 +332,7 @@
                                     @method('DELETE')
                                     <button
                                         type="submit"
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-400 text-red-500 hover:bg-red-50 hover:text-red-600 transition shadow-xs"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-400 dark:border-red-500/60 text-red-500 dark:text-red-400 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-300 transition shadow-xs cursor-pointer"
                                         title="Eliminar">
                                         <i class="fa-solid fa-trash text-xs"></i>
                                     </button>
@@ -346,9 +346,9 @@
                     @empty
 
                     <tr>
-                        <td colspan="10" class="px-6 py-12 text-center text-gray-400">
-                            <i class="fa-solid fa-box-open text-3xl mb-2 text-gray-300"></i>
-                            <p class="text-sm">No hay productos registrados.</p>
+                        <td colspan="10" class="px-6 py-12 text-center text-gray-400 dark:text-slate-500">
+                            <i class="fa-solid fa-box-open text-3xl mb-2 text-gray-300 dark:text-slate-600"></i>
+                            <p class="text-sm font-semibold">No hay productos registrados.</p>
                         </td>
                     </tr>
 
@@ -360,7 +360,7 @@
 
         {{-- Paginación inferior --}}
         @if($productos->hasPages())
-        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+        <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50">
             {{ $productos->links() }}
         </div>
         @endif

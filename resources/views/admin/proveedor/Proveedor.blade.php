@@ -41,17 +41,17 @@
     {{-- ==================== TÍTULO Y BOTÓN ==================== --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2.5">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2.5 transition-colors">
                 <span class="text-2xl">🏭</span>
                 Gestión de Proveedores
             </h1>
-            <p class="text-xs text-gray-500 mt-1">Administra tu red de proveedores y supervisa los productos suministrados</p>
+            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1 transition-colors">Administra tu red de proveedores y supervisa los productos suministrados</p>
         </div>
 
         <button
             type="button"
             @click="openModal = true"
-            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-lg font-semibold hover:bg-black transition shadow-sm">
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 dark:bg-violet-600 text-white rounded-lg font-semibold hover:bg-black dark:hover:bg-violet-700 transition shadow-sm cursor-pointer">
             <i class="fa-solid fa-plus text-xs"></i>
             Nuevo Proveedor
         </button>
@@ -60,24 +60,24 @@
 
     {{-- ==================== MENSAJES FLASH ==================== --}}
     @if(session('Mensaje'))
-        <div class="mt-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg flex items-center justify-between shadow-xs">
+        <div class="mt-4 px-4 py-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 rounded-lg flex items-center justify-between shadow-xs transition">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-circle-check text-emerald-500"></i>
                 <span class="text-sm font-medium">{{ session('Mensaje') }}</span>
             </div>
-            <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700">
+            <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700 dark:text-emerald-400 cursor-pointer">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
         </div>
     @endif
 
     @if(session('Error'))
-        <div class="mt-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center justify-between shadow-xs">
+        <div class="mt-4 px-4 py-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-red-700 dark:text-red-300 rounded-lg flex items-center justify-between shadow-xs transition">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
                 <span class="text-sm font-medium">{{ session('Error') }}</span>
             </div>
-            <button type="button" @click="$el.parentElement.remove()" class="text-red-500 hover:text-red-700">
+            <button type="button" @click="$el.parentElement.remove()" class="text-red-500 hover:text-red-700 dark:text-red-400 cursor-pointer">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
         </div>
@@ -88,45 +88,45 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
         
         {{-- Total Proveedores --}}
-        <div class="bg-white rounded-xl shadow-xs border border-gray-200/80 p-5 flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-900/90 rounded-xl shadow-xs border border-gray-200/80 dark:border-slate-800 p-5 flex items-center justify-between transition-colors">
             <div>
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Proveedores</p>
-                <p class="text-2xl font-black text-gray-800 mt-1">{{ $proveedores->count() }}</p>
+                <p class="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Total Proveedores</p>
+                <p class="text-2xl font-black text-gray-800 dark:text-white mt-1">{{ $proveedores->count() }}</p>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/40 flex items-center justify-center text-lg shadow-2xs">
                 <i class="fa-solid fa-industry"></i>
             </div>
         </div>
 
         {{-- Activos --}}
-        <div class="bg-white rounded-xl shadow-xs border border-gray-200/80 p-5 flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-900/90 rounded-xl shadow-xs border border-gray-200/80 dark:border-slate-800 p-5 flex items-center justify-between transition-colors">
             <div>
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Activos</p>
-                <p class="text-2xl font-black text-emerald-600 mt-1">{{ $proveedores->where('estado', 1)->count() }}</p>
+                <p class="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Activos</p>
+                <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ $proveedores->where('estado', 1)->count() }}</p>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+            <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40 flex items-center justify-center text-lg shadow-2xs">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
         </div>
 
         {{-- Inactivos --}}
-        <div class="bg-white rounded-xl shadow-xs border border-gray-200/80 p-5 flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-900/90 rounded-xl shadow-xs border border-gray-200/80 dark:border-slate-800 p-5 flex items-center justify-between transition-colors">
             <div>
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Inactivos</p>
-                <p class="text-2xl font-black text-gray-500 mt-1">{{ $proveedores->where('estado', 0)->count() }}</p>
+                <p class="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Inactivos</p>
+                <p class="text-2xl font-black text-gray-500 dark:text-slate-400 mt-1">{{ $proveedores->where('estado', 0)->count() }}</p>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-gray-100 text-gray-500 flex items-center justify-center text-lg">
+            <div class="w-11 h-11 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 flex items-center justify-center text-lg shadow-2xs">
                 <i class="fa-solid fa-pause"></i>
             </div>
         </div>
 
         {{-- Total Productos Suministrados --}}
-        <div class="bg-white rounded-xl shadow-xs border border-gray-200/80 p-5 flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-900/90 rounded-xl shadow-xs border border-gray-200/80 dark:border-slate-800 p-5 flex items-center justify-between transition-colors">
             <div>
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Productos Suministrados</p>
-                <p class="text-2xl font-black text-blue-600 mt-1">{{ $proveedores->sum('productos_count') }}</p>
+                <p class="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Productos Suministrados</p>
+                <p class="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">{{ $proveedores->sum('productos_count') }}</p>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/40 flex items-center justify-center text-lg shadow-2xs">
                 <i class="fa-solid fa-boxes-packing"></i>
             </div>
         </div>
@@ -139,12 +139,12 @@
         
         {{-- Buscador --}}
         <div class="relative w-full sm:max-w-md">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 text-sm"></i>
             <input
                 type="text"
                 x-model="q"
                 placeholder="Buscar por nombre, correo o teléfono..."
-                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-xs">
+                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-gray-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-xs placeholder:text-gray-400 dark:placeholder:text-slate-500 transition">
         </div>
 
         {{-- Filtro de estado --}}
@@ -152,22 +152,22 @@
             <button
                 type="button"
                 @click="filtroEstado = 'todos'"
-                :class="filtroEstado === 'todos' ? 'bg-gray-900 text-white font-semibold' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
-                class="px-3 py-1.5 rounded-lg text-xs transition">
+                :class="filtroEstado === 'todos' ? 'bg-gray-900 dark:bg-violet-600 text-white font-semibold' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800'"
+                class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
                 Todos ({{ $proveedores->count() }})
             </button>
             <button
                 type="button"
                 @click="filtroEstado = '1'"
-                :class="filtroEstado === '1' ? 'bg-emerald-600 text-white font-semibold' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
-                class="px-3 py-1.5 rounded-lg text-xs transition">
+                :class="filtroEstado === '1' ? 'bg-emerald-600 text-white font-semibold' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800'"
+                class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
                 Activos ({{ $proveedores->where('estado', 1)->count() }})
             </button>
             <button
                 type="button"
                 @click="filtroEstado = '0'"
-                :class="filtroEstado === '0' ? 'bg-gray-600 text-white font-semibold' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
-                class="px-3 py-1.5 rounded-lg text-xs transition">
+                :class="filtroEstado === '0' ? 'bg-gray-600 dark:bg-slate-700 text-white font-semibold' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800'"
+                class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
                 Inactivos ({{ $proveedores->where('estado', 0)->count() }})
             </button>
         </div>
@@ -176,21 +176,21 @@
 
 
     {{-- ==================== TABLA DE PROVEEDORES ==================== --}}
-    <div class="mt-4 bg-white rounded-xl shadow-sm border border-gray-200/80 overflow-hidden">
+    <div class="mt-4 bg-white dark:bg-slate-900/90 rounded-xl shadow-sm border border-gray-200/80 dark:border-slate-800 overflow-hidden transition-colors">
 
-        <div class="px-6 py-3.5 border-b border-gray-100 flex items-center justify-between text-xs text-gray-500 bg-white">
+        <div class="px-6 py-3.5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between text-xs text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900/80 transition-colors">
             <div>
                 Listado de proveedores registrados en el sistema
             </div>
             <div>
-                Total: <span class="font-bold text-gray-800">{{ $proveedores->count() }}</span>
+                Total: <span class="font-bold text-gray-800 dark:text-white">{{ $proveedores->count() }}</span>
             </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
                 <thead>
-                    <tr class="bg-gray-50/80 text-[11px] font-bold tracking-wider text-gray-500 uppercase border-b border-gray-100">
+                    <tr class="bg-gray-50/80 dark:bg-slate-900 text-[11px] font-bold tracking-wider text-gray-500 dark:text-slate-400 uppercase border-b border-gray-100 dark:border-slate-800 transition-colors">
                         <th class="px-6 py-3.5">PROVEEDOR</th>
                         <th class="px-6 py-3.5">CORREO ELECTRÓNICO</th>
                         <th class="px-6 py-3.5">TELÉFONO</th>
@@ -199,39 +199,39 @@
                         <th class="px-6 py-3.5 text-center">ACCIONES</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 bg-white">
+                <tbody class="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900/60 transition-colors">
 
                     @forelse ($proveedores as $proveedor)
 
                     <tr
                         x-show="(q === '' || '{{ strtolower($proveedor->nombre_proveedor) }}'.includes(q.toLowerCase()) || '{{ strtolower($proveedor->correo) }}'.includes(q.toLowerCase()) || '{{ $proveedor->telefono }}'.includes(q)) && (filtroEstado === 'todos' || filtroEstado === '{{ $proveedor->estado ? 1 : 0 }}')"
-                        class="hover:bg-gray-50/70 transition-colors">
+                        class="hover:bg-gray-50/70 dark:hover:bg-slate-800/60 transition-colors">
 
                         {{-- Proveedor con iniciales e ID --}}
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm shrink-0">
+                                <div class="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center font-bold text-sm shrink-0">
                                     {{ strtoupper(substr($proveedor->nombre_proveedor, 0, 2)) }}
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-gray-800 capitalize">{{ $proveedor->nombre_proveedor }}</p>
-                                    <span class="text-[10px] text-gray-400">ID: #{{ $proveedor->id }}</span>
+                                    <p class="font-semibold text-gray-800 dark:text-slate-100 capitalize">{{ $proveedor->nombre_proveedor }}</p>
+                                    <span class="text-[10px] text-gray-400 dark:text-slate-400">ID: #{{ $proveedor->id }}</span>
                                 </div>
                             </div>
                         </td>
 
                         {{-- Correo --}}
                         <td class="px-6 py-4">
-                            <a href="mailto:{{ $proveedor->correo }}" class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-xs font-medium hover:underline">
-                                <i class="fa-solid fa-envelope text-[11px] text-gray-400"></i>
+                            <a href="mailto:{{ $proveedor->correo }}" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs font-medium hover:underline">
+                                <i class="fa-solid fa-envelope text-[11px] text-gray-400 dark:text-slate-400"></i>
                                 {{ $proveedor->correo }}
                             </a>
                         </td>
 
                         {{-- Teléfono --}}
-                        <td class="px-6 py-4 text-xs text-gray-700 whitespace-nowrap">
+                        <td class="px-6 py-4 text-xs text-gray-700 dark:text-slate-300 whitespace-nowrap">
                             <span class="inline-flex items-center gap-1.5">
-                                <i class="fa-solid fa-phone text-[10px] text-gray-400"></i>
+                                <i class="fa-solid fa-phone text-[10px] text-gray-400 dark:text-slate-400"></i>
                                 {{ $proveedor->telefono }}
                             </span>
                         </td>
@@ -241,9 +241,9 @@
                             <button
                                 type="button"
                                 @click="openProductos[{{ $proveedor->id }}] = !openProductos[{{ $proveedor->id }}]"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300 transition cursor-pointer shadow-xs"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-blue-200 dark:border-blue-800/60 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition cursor-pointer shadow-xs"
                                 title="Click para ver los productos de este proveedor">
-                                <i class="fa-solid fa-box text-[11px]" :class="openProductos[{{ $proveedor->id }}] ? 'text-blue-600' : 'text-blue-500'"></i>
+                                <i class="fa-solid fa-box text-[11px]" :class="openProductos[{{ $proveedor->id }}] ? 'text-blue-600 dark:text-blue-400' : 'text-blue-500 dark:text-blue-400'"></i>
                                 <span>{{ $proveedor->productos_count }} {{ $proveedor->productos_count === 1 ? 'producto' : 'productos' }}</span>
                                 <i class="fa-solid fa-chevron-down text-[9px] text-blue-400 transition-transform duration-200" :class="openProductos[{{ $proveedor->id }}] && 'rotate-180'"></i>
                             </button>
@@ -252,11 +252,11 @@
                         {{-- Estado --}}
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($proveedor->estado)
-                                <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-[#0f6848] text-white">
+                                <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-[#0f6848] dark:bg-emerald-950/60 dark:border dark:border-emerald-500/40 text-white dark:text-emerald-300 shadow-2xs">
                                     Activo
                                 </span>
                             @else
-                                <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700">
+                                <span class="inline-flex items-center px-3 py-0.5 text-xs font-semibold rounded-full bg-gray-200 dark:bg-slate-800 dark:border dark:border-slate-700 text-gray-700 dark:text-slate-400 shadow-2xs">
                                     Inactivo
                                 </span>
                             @endif
@@ -272,7 +272,7 @@
                                     @method('PATCH')
                                     <button
                                         type="submit"
-                                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $proveedor->estado ? 'bg-blue-600' : 'bg-gray-300' }}"
+                                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $proveedor->estado ? 'bg-blue-600' : 'bg-gray-300 dark:bg-slate-700' }}"
                                         title="{{ $proveedor->estado ? 'Desactivar proveedor' : 'Activar proveedor' }}">
                                         <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out {{ $proveedor->estado ? 'translate-x-5' : 'translate-x-0' }}"></span>
                                     </button>
@@ -288,7 +288,7 @@
                                         telefono: @js($proveedor->telefono),
                                         estado: {{ $proveedor->estado ? 1 : 0 }}
                                     })"
-                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-blue-400 text-blue-500 hover:bg-blue-50 hover:text-blue-600 transition shadow-xs"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-blue-400 dark:border-blue-500/60 text-blue-500 dark:text-blue-400 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/40 hover:text-blue-600 dark:hover:text-blue-300 transition shadow-xs cursor-pointer"
                                     title="Editar">
                                     <i class="fa-solid fa-pen text-xs"></i>
                                 </button>
@@ -302,7 +302,7 @@
                                     @method('DELETE')
                                     <button
                                         type="submit"
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-400 text-red-500 hover:bg-red-50 hover:text-red-600 transition shadow-xs"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-400 dark:border-red-500/60 text-red-500 dark:text-red-400 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-300 transition shadow-xs cursor-pointer"
                                         title="Eliminar">
                                         <i class="fa-solid fa-trash text-xs"></i>
                                     </button>
@@ -318,25 +318,25 @@
                         x-show="openProductos[{{ $proveedor->id }}]"
                         x-cloak
                         x-transition
-                        class="bg-gray-50/70 border-b border-gray-200">
+                        class="bg-gray-50/70 dark:bg-slate-900/95 border-b border-gray-200 dark:border-slate-800">
                         <td colspan="6" class="p-4 sm:p-6">
-                            <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xs border border-gray-200 dark:border-slate-800 overflow-hidden">
 
                                 {{-- Encabezado de la sub-tabla --}}
-                                <div class="px-5 py-3.5 bg-gray-50/90 border-b border-gray-200 flex items-center justify-between">
+                                <div class="px-5 py-3.5 bg-gray-50/90 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
                                     <div class="flex items-center gap-2.5">
-                                        <i class="fa-solid fa-boxes-stacked text-gray-500 text-sm"></i>
-                                        <h3 class="font-semibold text-gray-800 text-sm">
+                                        <i class="fa-solid fa-boxes-stacked text-gray-500 dark:text-slate-400 text-sm"></i>
+                                        <h3 class="font-semibold text-gray-800 dark:text-white text-sm">
                                             Productos suministrados por <span class="capitalize">{{ $proveedor->nombre_proveedor }}</span>
                                         </h3>
-                                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-700">
+                                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
                                             {{ $proveedor->productos->count() }}
                                         </span>
                                     </div>
                                     <button
                                         type="button"
                                         @click="openProductos[{{ $proveedor->id }}] = false"
-                                        class="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 font-medium transition">
+                                        class="text-xs text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1 font-medium transition cursor-pointer">
                                         <i class="fa-solid fa-xmark"></i> Ocultar
                                     </button>
                                 </div>
