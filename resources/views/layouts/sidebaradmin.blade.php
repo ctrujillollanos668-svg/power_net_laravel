@@ -565,69 +565,100 @@
     </style>
 </head>
 <body class="bg-[#f8fafc] dark:bg-[#0b0f19] text-slate-800 dark:text-slate-100 antialiased font-sans transition-colors duration-200">
-<div class="flex min-h-screen">
+<div class="flex min-h-screen relative" x-data="{ sidebarOpen: localStorage.getItem('sidebarOpen') !== 'false' }">
 
-    {{-- ==================== SIDEBAR MODERNO Y ELEGANTE (100% FIJO) ==================== --}}
-    <aside class="fixed inset-y-0 left-0 w-64 h-full bg-white dark:bg-[#080d1a] border-r border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-300 flex flex-col z-30 shadow-sm dark:shadow-2xl overflow-hidden transition-colors duration-200">
+    {{-- ==================== OVERLAY MÓVIL ==================== --}}
+    <div 
+        x-show="sidebarOpen" 
+        x-cloak 
+        @click="sidebarOpen = false; localStorage.setItem('sidebarOpen', 'false')" 
+        class="fixed inset-0 bg-black/60 backdrop-blur-xs z-30 lg:hidden transition-opacity duration-300">
+    </div>
+
+    {{-- ==================== SIDEBAR MODERNO Y ELEGANTE (COLAPSABLE EN MODO MINI) ==================== --}}
+    <aside 
+        :class="{
+            'w-64 translate-x-0 shadow-2xl lg:shadow-sm': sidebarOpen,
+            'w-[74px] max-lg:-translate-x-full translate-x-0 shadow-sm': !sidebarOpen
+        }"
+        class="fixed inset-y-0 left-0 h-full bg-white dark:bg-[#080d1a] border-r border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-300 flex flex-col z-40 overflow-x-hidden transition-all duration-300 ease-in-out">
         
         {{-- Brand & Logo Header --}}
-        <div class="px-5 py-5 border-b border-slate-100 dark:border-white/5 flex items-center justify-between shrink-0">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
-                <div class="w-11 h-11 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 p-1 flex items-center justify-center overflow-hidden shadow-sm dark:shadow-lg dark:shadow-amber-500/20 group-hover:scale-105 transition duration-300 shrink-0">
+        <div class="py-4 border-b border-slate-100 dark:border-white/5 flex items-center shrink-0 transition-all duration-300"
+             :class="sidebarOpen ? 'px-4 justify-between' : 'px-2 justify-center'">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group min-w-0" :class="!sidebarOpen && 'justify-center'">
+                <div class="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 p-1 flex items-center justify-center overflow-hidden shadow-sm dark:shadow-lg dark:shadow-amber-500/20 group-hover:scale-105 transition duration-300 shrink-0">
                     <img src="{{ asset('img/logo_powernet.jpg') }}" alt="PowerNet" class="w-full h-full object-cover rounded-xl">
                 </div>
-                <div>
+                <div x-show="sidebarOpen" x-cloak class="min-w-0 transition-opacity duration-200">
                     <div class="text-base font-black tracking-tight leading-none text-slate-900 dark:text-white flex items-center gap-1">
                         <span>Power</span><span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-400">Net</span>
                     </div>
-                    <span class="text-[9px] font-extrabold text-amber-500 dark:text-amber-400/90 uppercase tracking-widest block mt-1">Iluminación & Bombillos</span>
+                    <span class="text-[9px] font-extrabold text-amber-500 dark:text-amber-400/90 uppercase tracking-widest block mt-1 truncate">Iluminación & Bombillos</span>
                 </div>
             </a>
-            <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-500/10 text-amber-600 dark:text-amber-300 border border-amber-500/20">
+            <span x-show="sidebarOpen" x-cloak class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-500/10 text-amber-600 dark:text-amber-300 border border-amber-500/20 shrink-0">
                 PRO
             </span>
         </div>
 
         {{-- Navegación con Scroll Slim --}}
-        <nav class="flex-1 sidebar-scroll overflow-y-auto px-3.5 py-5 space-y-6">
+        <nav class="flex-1 sidebar-scroll overflow-y-auto py-5 space-y-6 transition-all duration-300"
+             :class="sidebarOpen ? 'px-3.5' : 'px-2'">
             
             {{-- SECCIÓN: PRINCIPAL --}}
             <div>
-                <p class="px-3 mb-2 text-[10px] font-extrabold tracking-widest text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5">
+                <p x-show="sidebarOpen" x-cloak class="px-3 mb-2 text-[10px] font-extrabold tracking-widest text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5 transition-opacity">
                     <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
                     <span>Principal</span>
                 </p>
+                <div x-show="!sidebarOpen" class="h-px bg-slate-200/60 dark:bg-slate-800/60 my-2.5 mx-2"></div>
                 <ul class="space-y-1">
                     {{-- Dashboard --}}
                     <li>
                         <a href="{{ route('dashboard') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('dashboard') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-amber-500 dark:text-amber-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Dashboard">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('dashboard') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-amber-500 dark:text-amber-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-gauge-high text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Dashboard</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Dashboard</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Dashboard</span>
+                            </div>
                         </a>
                     </li>
 
                     {{-- Pedidos --}}
                     <li>
                         <a href="{{ route('admin.pedidos.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('admin.pedidos.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('admin.pedidos.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-blue-500 dark:text-blue-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('admin.pedidos.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Pedidos">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('admin.pedidos.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-blue-500 dark:text-blue-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-clipboard-list text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Pedidos</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Pedidos</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Pedidos</span>
+                            </div>
                         </a>
                     </li>
 
                     {{-- Envíos --}}
                     <li>
                         <a href="{{ route('admin.envios.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('admin.envios.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('admin.envios.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-cyan-600 dark:text-cyan-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('admin.envios.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Envíos y Despachos">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('admin.envios.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-cyan-600 dark:text-cyan-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-truck-fast text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Envíos y Despachos</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Envíos y Despachos</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Envíos y Despachos</span>
+                            </div>
                         </a>
                     </li>
                 </ul>
@@ -635,63 +666,89 @@
 
             {{-- SECCIÓN: CATÁLOGO --}}
             <div>
-                <p class="px-3 mb-2 text-[10px] font-extrabold tracking-widest text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5">
+                <p x-show="sidebarOpen" x-cloak class="px-3 mb-2 text-[10px] font-extrabold tracking-widest text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5 transition-opacity">
                     <span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>
                     <span>Catálogo & Stock</span>
                 </p>
+                <div x-show="!sidebarOpen" class="h-px bg-slate-200/60 dark:bg-slate-800/60 my-2.5 mx-2"></div>
                 <ul class="space-y-1">
                     {{-- Productos --}}
                     <li>
                         <a href="{{ route('productos.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('productos.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('productos.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-violet-600 dark:text-violet-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('productos.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Productos">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('productos.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-violet-600 dark:text-violet-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-box text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Productos</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Productos</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Productos</span>
+                            </div>
                         </a>
                     </li>
 
                     {{-- Categorías --}}
                     <li>
                         <a href="{{ route('categorias.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('categorias.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('categorias.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-fuchsia-600 dark:text-fuchsia-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('categorias.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Categorías">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('categorias.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-fuchsia-600 dark:text-fuchsia-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-tags text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Categorías</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Categorías</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Categorías</span>
+                            </div>
                         </a>
                     </li>
 
                     {{-- Inventario --}}
                     <li>
                         <a href="{{ route('admin.inventario.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('admin.inventario.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('admin.inventario.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-sky-600 dark:text-sky-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('admin.inventario.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Inventario">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('admin.inventario.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-sky-600 dark:text-sky-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-warehouse text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Inventario</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Inventario</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Inventario</span>
+                            </div>
                         </a>
                     </li>
 
                     {{-- Ofertas --}}
                     <li>
                         <a href="{{ route('ofertas.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('ofertas.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('ofertas.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-yellow-600 dark:text-yellow-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('ofertas.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Ofertas">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('ofertas.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-yellow-600 dark:text-yellow-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-percent text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Ofertas</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Ofertas</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Ofertas</span>
+                            </div>
                         </a>
                     </li>
 
                     {{-- Proveedores --}}
                     <li>
                         <a href="{{ route('proveedores.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('proveedores.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('proveedores.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-indigo-600 dark:text-indigo-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('proveedores.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Proveedores">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('proveedores.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-indigo-600 dark:text-indigo-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-industry text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Proveedores</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Proveedores</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Proveedores</span>
+                            </div>
                         </a>
                     </li>
                 </ul>
@@ -699,52 +756,73 @@
 
             {{-- SECCIÓN: FINANZAS --}}
             <div>
-                <p class="px-3 mb-2 text-[10px] font-extrabold tracking-widest text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5">
+                <p x-show="sidebarOpen" x-cloak class="px-3 mb-2 text-[10px] font-extrabold tracking-widest text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1.5 transition-opacity">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     <span>Finanzas & Recaudo</span>
                 </p>
+                <div x-show="!sidebarOpen" class="h-px bg-slate-200/60 dark:bg-slate-800/60 my-2.5 mx-2"></div>
                 <ul class="space-y-1">
                     {{-- Métodos de Pago --}}
                     <li>
                         <a href="{{ route('metodospago.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('metodospago.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('metodospago.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-emerald-600 dark:text-emerald-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('metodospago.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Métodos de Pago">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('metodospago.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-emerald-600 dark:text-emerald-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-credit-card text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Métodos de Pago</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Métodos de Pago</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Métodos de Pago</span>
+                            </div>
                         </a>
                     </li>
 
                     {{-- Pagos --}}
                     <li>
                         <a href="{{ route('admin.pagos.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('admin.pagos.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('admin.pagos.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-teal-600 dark:text-teal-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('admin.pagos.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Pagos">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('admin.pagos.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-teal-600 dark:text-teal-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Pagos</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Pagos</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Pagos</span>
+                            </div>
                         </a>
                     </li>
 
                     {{-- Ventas --}}
                     <li>
                         <a href="{{ route('admin.ventas.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('admin.ventas.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('admin.ventas.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-amber-500 dark:text-amber-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('admin.ventas.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Ventas & Analítica">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('admin.ventas.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-amber-500 dark:text-amber-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-sack-dollar text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Ventas & Analítica</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Ventas & Analítica</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Ventas & Analítica</span>
+                            </div>
                         </a>
                     </li>
 
                     {{-- Devoluciones --}}
                     <li>
                         <a href="{{ route('admin.devoluciones.index') }}"
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition duration-200 group {{ request()->routeIs('admin.devoluciones.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition {{ request()->routeIs('admin.devoluciones.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-rose-500 dark:text-rose-400 dark:group-hover:bg-slate-800' }}">
+                           :class="sidebarOpen ? 'px-3 py-2.5 justify-start' : 'px-0 py-2.5 justify-center'"
+                           class="flex items-center gap-3 rounded-xl text-xs font-bold transition duration-200 group relative {{ request()->routeIs('admin.devoluciones.*') ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5' }}"
+                           title="Devoluciones">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 {{ request()->routeIs('admin.devoluciones.*') ? 'bg-white/20 text-white' : 'bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800/80 text-rose-500 dark:text-rose-400 dark:group-hover:bg-slate-800' }}">
                                 <i class="fa-solid fa-rotate-left text-xs"></i>
                             </div>
-                            <span class="tracking-wide">Devoluciones</span>
+                            <span x-show="sidebarOpen" x-cloak class="tracking-wide truncate">Devoluciones</span>
+                            <div x-show="!sidebarOpen" class="hidden lg:group-hover:flex absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none items-center gap-1 border border-slate-700/60">
+                                <span>Devoluciones</span>
+                            </div>
                         </a>
                     </li>
                 </ul>
@@ -755,15 +833,31 @@
     </aside>
 
     {{-- ==================== CONTENIDO PRINCIPAL ==================== --}}
-    <div class="flex-1 flex flex-col min-h-screen min-w-0 ml-64">
+    <div 
+        :class="{
+            'lg:ml-64': sidebarOpen,
+            'lg:ml-[74px] ml-0': !sidebarOpen
+        }"
+        class="flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300 ease-in-out">
 
-        {{-- Topbar Elegante --}}
-        <header class="h-16 bg-white/90 dark:bg-[#0f172a]/90 border-b border-slate-200/80 dark:border-slate-800/80 px-6 sm:px-8 flex items-center justify-between shrink-0 sticky top-0 z-20 shadow-2xs backdrop-blur-md transition-colors duration-200">
+        {{-- Topbar Elegante con Botón de 3 Líneas --}}
+        <header class="h-16 bg-white/90 dark:bg-[#0f172a]/90 border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-8 flex items-center justify-between shrink-0 sticky top-0 z-20 shadow-2xs backdrop-blur-md transition-colors duration-200">
             
             <div class="flex items-center gap-3">
-                <span class="text-sm font-bold text-slate-400 dark:text-slate-500">PowerNet</span>
-                <i class="fa-solid fa-chevron-right text-[10px] text-slate-300 dark:text-slate-600"></i>
-                <h2 class="text-sm font-black text-slate-900 dark:text-white">@yield('title', 'Panel de Control')</h2>
+                {{-- Botón Hamburguesa 3 Líneas para Colapsar / Abrir Sidebar --}}
+                <button 
+                    type="button" 
+                    @click="sidebarOpen = !sidebarOpen; localStorage.setItem('sidebarOpen', sidebarOpen)"
+                    title="Ocultar / Mostrar menú lateral"
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 transition-all duration-200 cursor-pointer shadow-xs shrink-0">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-slate-400 dark:text-slate-500 hidden sm:inline">PowerNet</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-300 dark:text-slate-600 hidden sm:inline"></i>
+                    <h2 class="text-sm font-black text-slate-900 dark:text-white truncate">@yield('title', 'Panel de Control')</h2>
+                </div>
             </div>
 
             <div class="flex items-center gap-3" x-data="{
