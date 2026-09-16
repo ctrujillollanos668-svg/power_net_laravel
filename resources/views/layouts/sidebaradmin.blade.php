@@ -338,10 +338,6 @@
             border-color: rgba(59, 130, 246, 0.45) !important;
             color: #93c5fd !important;
         }
-            background-color: rgba(30, 58, 138, 0.45) !important;
-            border-color: rgba(59, 130, 246, 0.45) !important;
-            color: #93c5fd !important;
-        }
         .dark main .bg-violet-50,
         .dark main .bg-violet-100,
         .dark main [class*="bg-[#f5f3ff]"],

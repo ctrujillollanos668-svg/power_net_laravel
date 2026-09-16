@@ -295,6 +295,52 @@
     .powernet-error-item:last-child {
         margin-bottom: 0;
     }
+
+    /* ==================== MODO OSCURO PARA ALERTAS SWEETALERT2 ==================== */
+    html.dark div:where(.swal2-container) div:where(.swal2-popup).powernet-swal-popup,
+    .dark div:where(.swal2-container) div:where(.swal2-popup).powernet-swal-popup {
+        background: #0f172a !important;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(51, 65, 85, 0.8) !important;
+    }
+
+    html.dark div:where(.swal2-container) .powernet-swal-title,
+    .dark div:where(.swal2-container) .powernet-swal-title {
+        color: #ffffff !important;
+    }
+
+    html.dark div:where(.swal2-container) .powernet-swal-html,
+    .dark div:where(.swal2-container) .powernet-swal-html {
+        color: #cbd5e1 !important;
+    }
+
+    html.dark div:where(.swal2-container) .powernet-btn-cancel,
+    html.dark div:where(.swal2-container) .swal2-cancel,
+    .dark div:where(.swal2-container) .powernet-btn-cancel,
+    .dark div:where(.swal2-container) .swal2-cancel {
+        background-color: #1e293b !important;
+        color: #e2e8f0 !important;
+        border-color: #334155 !important;
+    }
+
+    html.dark div:where(.swal2-container) div:where(.swal2-popup).powernet-swal-toast,
+    .dark div:where(.swal2-container) div:where(.swal2-popup).powernet-swal-toast {
+        background: #0f172a !important;
+        color: #ffffff !important;
+        border-color: #334155 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    html.dark div:where(.swal2-container) .powernet-swal-toast .swal2-title,
+    .dark div:where(.swal2-container) .powernet-swal-toast .swal2-title {
+        color: #ffffff !important;
+    }
+
+    html.dark .powernet-error-card,
+    .dark .powernet-error-card {
+        background: rgba(127, 29, 29, 0.25) !important;
+        border-color: rgba(239, 68, 68, 0.35) !important;
+        color: #fca5a5 !important;
+    }
 </style>
 
 <script>
