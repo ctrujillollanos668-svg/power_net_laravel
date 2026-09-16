@@ -34,7 +34,12 @@
                         placeholder="ejemplo@correo.com"
                         class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition" />
                 </div>
-                <x-input-error :messages="$errors->get('email')" class="mt-1 text-[11px] text-red-500 font-bold" />
+                    @error('email')
+                        <p class="text-red-500 text-[11px] font-bold mt-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-exclamation text-xs shrink-0"></i>
+                            <span>{{ $message }}</span>
+                        </p>
+                    @enderror
             </div>
 
             <!-- Password -->
@@ -69,7 +74,12 @@
                         <i class="fa-solid" :class="verPass ? 'fa-eye-slash' : 'fa-eye'"></i>
                     </button>
                 </div>
-                <x-input-error :messages="$errors->get('password')" class="mt-1 text-[11px] text-red-500 font-bold" />
+                    @error('password')
+                        <p class="text-red-500 text-[11px] font-bold mt-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-exclamation text-xs shrink-0"></i>
+                            <span>{{ $message }}</span>
+                        </p>
+                    @enderror
             </div>
 
             <!-- Remember Me -->

@@ -554,13 +554,23 @@
 {{-- Manejador de Errores de Validación con Títulos Inteligentes y Cierre Instantáneo --}}
 @if($errors->any())
     @php
+        // Si el error es de inicio de sesión / credenciales, NO mostrar SweetAlert emergente (se muestra directo en el formulario)
+        $isLoginError = request()->routeIs('login') || 
+            ($errors->has('email') && (
+                str_contains(implode(' ', (array)$errors->get('email')), 'incorrectos') ||
+                str_contains(implode(' ', (array)$errors->get('email')), 'credentials') ||
+                str_contains(implode(' ', (array)$errors->get('email')), 'match our records') ||
+                str_contains(implode(' ', (array)$errors->get('email')), 'Demasiados intentos')
+            )) ||
+            (session()->has('_old_input') && !old('name') && ($errors->has('email') || $errors->has('password')));
+
         $tituloError = '¡Ups! Revisa estos datos';
         $erroresTraducidos = [];
 
         foreach ($errors->all() as $err) {
-            if (str_contains($err, 'These credentials do not match our records.')) {
-                $tituloError = 'No pudimos iniciar sesión';
-                $erroresTraducidos[] = 'El correo electrónico o la contraseña ingresados no son correctos.';
+            if (str_contains($err, 'These credentials do not match our records.') || str_contains($err, 'incorrectos')) {
+                // Se muestra directamente debajo del campo en el formulario de login
+                continue;
             } elseif (str_contains($err, 'The email has already been taken.')) {
                 $tituloError = 'Correo ya registrado';
                 $erroresTraducidos[] = 'Este correo electrónico ya se encuentra registrado. Inicia sesión o usa otro.';
@@ -571,14 +581,17 @@
                 $tituloError = 'Contraseña muy corta';
                 $erroresTraducidos[] = 'La contraseña debe tener un mínimo de 8 caracteres.';
             } elseif (str_contains($err, 'The password field is required.')) {
+                $tituloError = 'Contraseña requerida';
                 $erroresTraducidos[] = 'El campo de contraseña es obligatorio.';
             } elseif (str_contains($err, 'The email field is required.')) {
+                $tituloError = 'Correo requerido';
                 $erroresTraducidos[] = 'El campo de correo electrónico es obligatorio.';
             } else {
                 $erroresTraducidos[] = $err;
             }
         }
     @endphp
+    @if(!$isLoginError && count($erroresTraducidos) > 0)
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const errores = {!! json_encode($erroresTraducidos) !!};
@@ -596,4 +609,5 @@
             window.alertaError(htmlContent, titulo);
         });
     </script>
+    @endif
 @endif

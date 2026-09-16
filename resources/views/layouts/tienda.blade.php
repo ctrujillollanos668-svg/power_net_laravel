@@ -23,7 +23,7 @@
 </head>
 
 <body class="bg-gray-100 text-gray-900 antialiased min-h-screen flex flex-col" 
-      x-data="{ modalLogin: false, modalRegistro: false, menuCategorias: false }"
+      x-data="{ modalLogin: {{ ($errors->has('email') || $errors->has('password')) && !old('name') ? 'true' : 'false' }}, modalRegistro: {{ old('name') ? 'true' : 'false' }}, menuCategorias: false }"
       @abrir-login.window="modalLogin = true">
 
     {{-- ===== SMART STICKY HEADER CONTAINER (AUTO-HIDE ON SCROLL DOWN / REVEAL ON SCROLL UP) ===== --}}
@@ -542,7 +542,10 @@
                             class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition">
                     </div>
                     @error('email')
-                        <p class="text-red-500 text-[11px] font-bold mt-1">{{ $message }}</p>
+                        <p class="text-red-500 text-[11px] font-bold mt-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-exclamation text-xs shrink-0"></i>
+                            <span>{{ $message }}</span>
+                        </p>
                     @enderror
                 </div>
 
@@ -577,7 +580,10 @@
                         </button>
                     </div>
                     @error('password')
-                        <p class="text-red-500 text-[11px] font-bold mt-1">{{ $message }}</p>
+                        <p class="text-red-500 text-[11px] font-bold mt-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-exclamation text-xs shrink-0"></i>
+                            <span>{{ $message }}</span>
+                        </p>
                     @enderror
                 </div>
 
