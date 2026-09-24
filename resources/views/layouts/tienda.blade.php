@@ -665,15 +665,16 @@
 
         // Función Global de Compra Rápida (Botón Comprar)
         window.comprarProductoGlobal = function(productoId, cantidad = 1) {
-            if (!window.isUserLoggedIn) {
-                // Si NO está logueado: NO agrega nada al carrito, abre directamente el login
-                window.abrirModalLogin();
-                return;
-            }
-
-            // Si SÍ está logueado: flujo normal (agrega al carrito y va al carrito)
+            // 1. Agregar el producto a la sesión del carrito primero
             window.agregarAlCarritoGlobal(productoId, cantidad, () => {
-                window.location.href = '{{ url('/carrito') }}';
+                if (!window.isUserLoggedIn) {
+                    // 2. Si no está logueado, abre el modal de login avisando al usuario
+                    window.alertaToast('¡Producto listo! Inicia sesión para completar tu compra.');
+                    window.abrirModalLogin();
+                } else {
+                    // 3. Si ya está logueado, va DIRECTAMENTE a la pantalla de pago / Checkout
+                    window.location.href = '{{ route('checkout.index') }}';
+                }
             });
         };
 

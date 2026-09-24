@@ -33,6 +33,12 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('dashboard', absolute: false));
         }
 
+        // Si el cliente tiene productos en el carrito, llevarlo directo a la pantalla de pago (Checkout)
+        $cart = session()->get('cart', []);
+        if (!empty($cart)) {
+            return redirect()->route('checkout.index');
+        }
+
         return redirect()->intended(route('tienda.inicio', absolute: false));
     }
 

@@ -67,6 +67,12 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        // Si tiene productos en el carrito, llevarlo directo a la pantalla de pago (Checkout)
+        $cart = session()->get('cart', []);
+        if (!empty($cart)) {
+            return redirect()->route('checkout.index')->with('success', '¡Bienvenido a PowerNet! Completa tus datos para confirmar tu pedido.');
+        }
+
         return redirect()->route('tienda.inicio')->with('success', '¡Bienvenido a PowerNet! Tu cuenta ha sido creada exitosamente.');
     }
 }
