@@ -55,25 +55,18 @@ class RegisteredUserController extends Controller
 
 
         $user = User::create([
-
-            // Usuario normal por defecto
-            'role_id' => 1,
-
+            // Rol de cliente por defecto (role_id = 2)
+            'role_id' => 2,
             'name' => $request->name,
-
             'email' => $request->email,
-
             'password' => Hash::make($request->password),
-
+            'estado' => 'Activo',
         ]);
-
 
         event(new Registered($user));
 
-
         Auth::login($user);
 
-
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('tienda.inicio')->with('success', '¡Bienvenido a PowerNet! Tu cuenta ha sido creada exitosamente.');
     }
 }
