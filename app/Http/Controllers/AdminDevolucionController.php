@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetalleDevolucion;
 use App\Models\Devolucion;
 use App\Models\Pedido;
+use App\Models\Inventario;
 use Illuminate\Http\Request;
 
 class AdminDevolucionController extends Controller
@@ -93,10 +94,22 @@ class AdminDevolucionController extends Controller
                     'motivo' => $validated['motivo'],
                 ]);
 
-                // Si se aprueba de inmediato, reponer stock
+                // Si se aprueba de inmediato, reponer stock y registrar en Kardex
                 if ($validated['estado'] === 'Aprobada' || $validated['estado'] === 'Completada') {
                     if ($detalle->producto) {
+                        $stockAnterior = (int)$detalle->producto->stock;
                         $detalle->producto->increment('stock', $detalle->cantidad);
+                        $stockNuevo = (int)$detalle->producto->fresh()->stock;
+
+                        Inventario::create([
+                            'producto_id' => $detalle->producto_id,
+                            'tipo' => 'entrada',
+                            'cantidad' => $detalle->cantidad,
+                            'stock_anterior' => $stockAnterior,
+                            'stock_nuevo' => $stockNuevo,
+                            'motivo' => "Reingreso por Devolución #{$devolucion->id} (Pedido #{$pedido->id})",
+                            'pedido_id' => $pedido->id,
+                        ]);
                     }
                 }
             }
@@ -131,7 +144,19 @@ class AdminDevolucionController extends Controller
         if (!empty($validated['reponer_stock']) && $validated['estado'] === 'Aprobada' && $estadoAnterior !== 'Aprobada') {
             foreach ($devolucion->detalles as $det) {
                 if ($det->producto) {
+                    $stockAnterior = (int)$det->producto->stock;
                     $det->producto->increment('stock', $det->cantidad ?? 1);
+                    $stockNuevo = (int)$det->producto->fresh()->stock;
+
+                    Inventario::create([
+                        'producto_id' => $det->producto_id,
+                        'tipo' => 'entrada',
+                        'cantidad' => $det->cantidad ?? 1,
+                        'stock_anterior' => $stockAnterior,
+                        'stock_nuevo' => $stockNuevo,
+                        'motivo' => "Reingreso por Devolución #{$devolucion->id} (Pedido #{$devolucion->pedido_id})",
+                        'pedido_id' => $devolucion->pedido_id,
+                    ]);
                 }
             }
         }

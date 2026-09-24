@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pedido;
+use App\Models\Inventario;
 use Illuminate\Http\Request;
 
 class AdminPedidoController extends Controller
@@ -80,8 +81,53 @@ class AdminPedidoController extends Controller
             'direccion_envio' => 'nullable|string|max:255',
         ]);
 
-        $pedido->estado_pedido = $validated['estado_pedido'];
+        $estadoAnterior = $pedido->estado_pedido;
+        $nuevoEstado = $validated['estado_pedido'];
+        $pedido->estado_pedido = $nuevoEstado;
         $pedido->save();
+
+        // Si se cancela el pedido, reintegrar el stock de los productos y registrar Kardex
+        if ($nuevoEstado === 'Cancelado' && $estadoAnterior !== 'Cancelado') {
+            $pedido->loadMissing('detalles.producto');
+            foreach ($pedido->detalles as $det) {
+                if ($det->producto) {
+                    $stockAnt = (int)$det->producto->stock;
+                    $det->producto->increment('stock', $det->cantidad);
+                    $stockNue = (int)$det->producto->fresh()->stock;
+
+                    Inventario::create([
+                        'producto_id' => $det->producto_id,
+                        'tipo' => 'entrada',
+                        'cantidad' => (int)$det->cantidad,
+                        'stock_anterior' => $stockAnt,
+                        'stock_nuevo' => $stockNue,
+                        'motivo' => "Cancelación de Pedido #{$pedido->id}",
+                        'pedido_id' => $pedido->id,
+                    ]);
+                }
+            }
+        } elseif ($estadoAnterior === 'Cancelado' && $nuevoEstado !== 'Cancelado') {
+            // Si se reactiva un pedido cancelado, volver a descontar el stock
+            $pedido->loadMissing('detalles.producto');
+            foreach ($pedido->detalles as $det) {
+                if ($det->producto) {
+                    $stockAnt = (int)$det->producto->stock;
+                    $stockNue = max(0, $stockAnt - (int)$det->cantidad);
+                    $det->producto->stock = $stockNue;
+                    $det->producto->save();
+
+                    Inventario::create([
+                        'producto_id' => $det->producto_id,
+                        'tipo' => 'salida',
+                        'cantidad' => (int)$det->cantidad,
+                        'stock_anterior' => $stockAnt,
+                        'stock_nuevo' => $stockNue,
+                        'motivo' => "Reactivación de Pedido #{$pedido->id}",
+                        'pedido_id' => $pedido->id,
+                    ]);
+                }
+            }
+        }
 
         if ($pedido->pago && !empty($validated['estado_pago'])) {
             $pedido->pago->estado_pago = $validated['estado_pago'];

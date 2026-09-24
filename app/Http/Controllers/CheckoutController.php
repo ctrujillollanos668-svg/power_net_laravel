@@ -10,6 +10,7 @@ use App\Models\Pedido;
 use App\Models\Persona;
 use App\Models\Producto;
 use App\Models\MetodoPago;
+use App\Models\Inventario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -194,15 +195,26 @@ class CheckoutController extends Controller
                         'producto_id' => $item['id'],
                     ]);
 
-                    // Descontar Stock
+                    // Descontar Stock y registrar en Kardex de inventario
                     $producto = Producto::find($item['id']);
                     if ($producto) {
-                        $nuevoStock = max(0, ($producto->stock ?? 10) - $item['cantidad']);
+                        $stockAnterior = (int)($producto->stock ?? 0);
+                        $nuevoStock = max(0, $stockAnterior - (int)$item['cantidad']);
                         $producto->stock = $nuevoStock;
                         if ($nuevoStock == 0) {
                             $producto->disponibilidad = 0;
                         }
                         $producto->save();
+
+                        Inventario::create([
+                            'producto_id' => $producto->id,
+                            'tipo' => 'salida',
+                            'cantidad' => (int)$item['cantidad'],
+                            'stock_anterior' => $stockAnterior,
+                            'stock_nuevo' => $nuevoStock,
+                            'motivo' => "Venta en Pedido #{$pedido->id}",
+                            'pedido_id' => $pedido->id,
+                        ]);
                     }
                 }
 

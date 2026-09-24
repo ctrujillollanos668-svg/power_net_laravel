@@ -7,6 +7,7 @@ use App\Models\Producto;
 use App\Models\Categoria;
 use App\Models\imagen_producto;
 use App\Models\Proveedor;
+use App\Models\Inventario;
 
 class ProductoController extends Controller
 {
@@ -75,6 +76,19 @@ class ProductoController extends Controller
         $producto->precio_compra = $validated['precio_compra'];
         $producto->save();
 
+        // Registrar entrada inicial en inventario si tiene stock
+        if ((int)$producto->stock > 0) {
+            Inventario::create([
+                'producto_id' => $producto->id,
+                'tipo' => 'entrada',
+                'cantidad' => (int)$producto->stock,
+                'stock_anterior' => 0,
+                'stock_nuevo' => (int)$producto->stock,
+                'motivo' => 'Stock inicial al registrar producto',
+                'pedido_id' => null,
+            ]);
+        }
+
         // Guardar imágenes
         if ($request->hasFile('imagenes')) {
             $destPath = public_path('imagenes_productos');
@@ -142,15 +156,37 @@ class ProductoController extends Controller
             'imagenes.*.max' => 'Cada imagen no debe superar los 10MB.',
         ]);
 
+        $stockAnterior = (int)$producto->stock;
+        $stockNuevo = (int)$validated['stock'];
+
         $producto->nombre = $validated['nombre'];
         $producto->descripcion = $validated['descripcion'] ?? null;
         $producto->categoria_id = $validated['categoria_id'];
         $producto->proveedor_id = $validated['proveedor_id'];
-        $producto->stock = $validated['stock'];
+        $producto->stock = $stockNuevo;
         $producto->disponibilidad = (bool)$validated['disponibilidad'];
         $producto->precio = $validated['precio'];
         $producto->precio_compra = $validated['precio_compra'];
         $producto->save();
+
+        // Registrar movimiento en Kardex si hubo cambio manual de stock
+        if ($stockNuevo !== $stockAnterior) {
+            $diferencia = abs($stockNuevo - $stockAnterior);
+            $tipo = $stockNuevo > $stockAnterior ? 'entrada' : 'salida';
+            $motivo = $stockNuevo > $stockAnterior
+                ? 'Incremento manual desde edición de producto'
+                : 'Reducción manual desde edición de producto';
+
+            Inventario::create([
+                'producto_id' => $producto->id,
+                'tipo' => $tipo,
+                'cantidad' => $diferencia,
+                'stock_anterior' => $stockAnterior,
+                'stock_nuevo' => $stockNuevo,
+                'motivo' => $motivo,
+                'pedido_id' => null,
+            ]);
+        }
 
         // Agregar nuevas imágenes
         if ($request->hasFile('imagenes')) {
