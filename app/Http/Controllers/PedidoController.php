@@ -20,9 +20,9 @@ class PedidoController extends Controller
         $pedidos = collect();
 
         if ($user && $user->persona_id) {
-            $cliente = Cliente::where('persona_id', $user->persona_id)->first();
-            if ($cliente) {
-                $pedidos = Pedido::where('cliente_id', $cliente->id)
+            $clienteIds = Cliente::withTrashed()->where('persona_id', $user->persona_id)->pluck('id');
+            if ($clienteIds->isNotEmpty()) {
+                $pedidos = Pedido::whereIn('cliente_id', $clienteIds)
                     ->with(['detalles.producto.imagenes', 'envio', 'pago', 'devoluciones'])
                     ->latest()
                     ->paginate(10);
@@ -50,12 +50,12 @@ class PedidoController extends Controller
     public function solicitarDevolucion(Request $request, $id)
     {
         $user = Auth::user();
-        $cliente = $user && $user->persona_id ? Cliente::where('persona_id', $user->persona_id)->first() : null;
+        $clienteIds = $user && $user->persona_id ? Cliente::withTrashed()->where('persona_id', $user->persona_id)->pluck('id') : collect();
 
         $pedido = Pedido::with('detalles.producto')->findOrFail($id);
 
         // Verificar que el pedido pertenece al cliente si está autenticado
-        if ($cliente && $pedido->cliente_id !== $cliente->id) {
+        if ($clienteIds->isNotEmpty() && !$clienteIds->contains($pedido->cliente_id)) {
             return back()->with('error', 'No tienes permiso para solicitar devoluciones en este pedido.');
         }
 

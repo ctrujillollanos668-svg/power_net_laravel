@@ -44,6 +44,8 @@ Route::get('/carrito/resumen', [CarritoController::class, 'resumen'])->name('car
 // --- Checkout y Procesamiento de Pagos (Cliente) ---
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/procesar', [CheckoutController::class, 'procesar'])->name('checkout.procesar');
+Route::post('/checkout/guardar-direccion', [CheckoutController::class, 'guardarDireccion'])->name('checkout.guardar-direccion');
+Route::delete('/checkout/eliminar-direccion/{id}', [CheckoutController::class, 'eliminarDireccion'])->name('checkout.eliminar-direccion');
 Route::get('/pedido/confirmacion/{id}', [CheckoutController::class, 'confirmacion'])->name('checkout.confirmacion');
 Route::get('/pedido/{id}/factura-pos', [CheckoutController::class, 'facturaPos'])->name('pedido.factura.pos');
 

@@ -21,18 +21,18 @@ class ClienteDevolucionController extends Controller
         $pedidos = collect();
 
         if ($user && $user->persona_id) {
-            $cliente = Cliente::where('persona_id', $user->persona_id)->first();
-            if ($cliente) {
+            $clienteIds = Cliente::withTrashed()->where('persona_id', $user->persona_id)->pluck('id');
+            if ($clienteIds->isNotEmpty()) {
                 // Obtener devoluciones del cliente
-                $devoluciones = Devolucion::whereHas('pedido', function ($q) use ($cliente) {
-                    $q->where('cliente_id', $cliente->id);
+                $devoluciones = Devolucion::whereHas('pedido', function ($q) use ($clienteIds) {
+                    $q->whereIn('cliente_id', $clienteIds);
                 })
                 ->with(['pedido.pago', 'detalles.producto.imagenes'])
                 ->latest('fecha_devolucion')
                 ->paginate(10);
 
                 // Obtener pedidos del cliente para el modal de nueva devolución
-                $pedidos = Pedido::where('cliente_id', $cliente->id)
+                $pedidos = Pedido::whereIn('cliente_id', $clienteIds)
                     ->where('estado_pedido', '!=', 'Cancelado')
                     ->with('detalles.producto')
                     ->latest()
@@ -70,7 +70,9 @@ class ClienteDevolucionController extends Controller
 
         $pedido = Pedido::with('detalles.producto')->findOrFail($validated['pedido_id']);
 
-        if ($cliente && $pedido->cliente_id !== $cliente->id) {
+        $clienteIds = $user && $user->persona_id ? Cliente::withTrashed()->where('persona_id', $user->persona_id)->pluck('id') : collect();
+
+        if ($clienteIds->isNotEmpty() && !$clienteIds->contains($pedido->cliente_id)) {
             return back()->with('error', 'No tienes permiso para solicitar una devolución en este pedido.');
         }
 

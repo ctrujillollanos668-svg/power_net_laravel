@@ -72,6 +72,67 @@ class CheckoutController extends Controller
 
         // Información precargada del usuario autenticado si existe
         $user = Auth::user();
+        $persona = null;
+        $cliente = null;
+        $direccionGuardada = null;
+        $direccionCalle = null;
+        $telefonoGuardado = null;
+        $documentoGuardado = null;
+        $ciudadGuardada = 'Bogotá D.C.';
+        $departamentoGuardado = 'Cundinamarca';
+
+        $direccionesGuardadas = collect();
+
+        if ($user) {
+            if ($user->persona_id) {
+                $persona = Persona::find($user->persona_id);
+            }
+            if (!$persona) {
+                $persona = Persona::where('nombre_persona', $user->name)->latest('id')->first();
+                if ($persona) {
+                    $user->persona_id = $persona->id;
+                    $user->save();
+                }
+            }
+
+            if ($persona) {
+                $telefonoGuardado = $persona->telefono;
+                $documentoGuardado = $persona->documento;
+                $clientes = Cliente::where('persona_id', $persona->id)->latest('id')->get();
+                
+                $direccionesGuardadas = $clientes->map(function ($c) {
+                    $partes = array_map('trim', explode(',', $c->direccion));
+                    $calle = $c->direccion;
+                    $ciudad = 'Bogotá D.C.';
+                    $depto = 'Cundinamarca';
+                    if (count($partes) >= 3) {
+                        $depto = array_pop($partes);
+                        $ciudad = array_pop($partes);
+                        $calle = implode(', ', $partes);
+                    } elseif (count($partes) == 2) {
+                        $ciudad = array_pop($partes);
+                        $calle = implode(', ', $partes);
+                    }
+                    return [
+                        'id' => $c->id,
+                        'alias' => $c->alias ?: 'Dirección',
+                        'direccion_completa' => $c->direccion,
+                        'direccion' => $calle,
+                        'ciudad' => $ciudad,
+                        'departamento' => $depto,
+                    ];
+                });
+
+                $cliente = $clientes->first();
+                if ($cliente && !empty($cliente->direccion)) {
+                    $direccionGuardada = $cliente->direccion;
+                    $primerDir = $direccionesGuardadas->first();
+                    $direccionCalle = $primerDir['direccion'];
+                    $ciudadGuardada = $primerDir['ciudad'];
+                    $departamentoGuardado = $primerDir['departamento'];
+                }
+            }
+        }
 
         // Obtener métodos de pago activos configurados por el administrador
         $metodosPago = MetodoPago::where('estado', 1)->get();
@@ -84,7 +145,16 @@ class CheckoutController extends Controller
             'total',
             'totalItems',
             'user',
-            'metodosPago'
+            'persona',
+            'cliente',
+            'metodosPago',
+            'direccionesGuardadas',
+            'direccionGuardada',
+            'direccionCalle',
+            'telefonoGuardado',
+            'documentoGuardado',
+            'ciudadGuardada',
+            'departamentoGuardado'
         ));
     }
 
@@ -149,15 +219,20 @@ class CheckoutController extends Controller
                     ]);
                 }
 
-                $cliente = Cliente::where('persona_id', $persona->id)->first();
+                $fullDireccion = $validated['direccion'] . ', ' . $validated['ciudad'] . ', ' . $validated['departamento'];
+                $cliente = null;
+                if (!empty($request->cliente_id)) {
+                    $cliente = Cliente::where('persona_id', $persona->id)->find($request->cliente_id);
+                }
                 if (!$cliente) {
+                    $cliente = Cliente::where('persona_id', $persona->id)->where('direccion', $fullDireccion)->first();
+                }
+                if (!$cliente) {
+                    $num = Cliente::where('persona_id', $persona->id)->count() + 1;
                     $cliente = Cliente::create([
-                        'direccion' => $validated['direccion'] . ', ' . $validated['ciudad'] . ', ' . $validated['departamento'],
+                        'direccion' => $fullDireccion,
+                        'alias' => $request->alias ?: ('Dirección ' . $num),
                         'persona_id' => $persona->id,
-                    ]);
-                } else {
-                    $cliente->update([
-                        'direccion' => $validated['direccion'] . ', ' . $validated['ciudad'] . ', ' . $validated['departamento'],
                     ]);
                 }
 
@@ -258,6 +333,140 @@ class CheckoutController extends Controller
 
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Ocurrió un error al procesar tu pedido: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Guarda o actualiza una dirección del cliente vía AJAX desde la pantalla de Checkout.
+     */
+    public function guardarDireccion(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'nullable|integer',
+            'alias' => 'nullable|string|max:50',
+            'nombre' => 'required|string|max:255',
+            'telefono' => 'required|string|max:50',
+            'documento' => 'nullable|string|max:50',
+            'direccion' => 'required|string|max:255',
+            'ciudad' => 'required|string|max:100',
+            'departamento' => 'required|string|max:100',
+        ]);
+
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Debes iniciar sesión para gestionar tus direcciones.'
+            ], 401);
+        }
+
+        try {
+            $persona = null;
+            if ($user->persona_id) {
+                $persona = Persona::find($user->persona_id);
+            }
+            if (!$persona) {
+                $persona = Persona::where('nombre_persona', $user->name)->latest('id')->first();
+            }
+
+            if (!$persona) {
+                $persona = Persona::create([
+                    'nombre_persona' => $validated['nombre'],
+                    'telefono' => $validated['telefono'],
+                    'documento' => $validated['documento'] ?? null,
+                ]);
+                $user->persona_id = $persona->id;
+                $user->save();
+            } else {
+                $persona->update([
+                    'nombre_persona' => $validated['nombre'],
+                    'telefono' => $validated['telefono'],
+                    'documento' => $validated['documento'] ?? $persona->documento,
+                ]);
+            }
+
+            $fullDireccion = trim($validated['direccion']) . ', ' . trim($validated['ciudad']) . ', ' . trim($validated['departamento']);
+            $cliente = null;
+            
+            if (!empty($validated['id'])) {
+                $cliente = Cliente::where('persona_id', $persona->id)->find($validated['id']);
+            }
+
+            $alias = !empty($validated['alias']) ? trim($validated['alias']) : 'Dirección ' . (Cliente::where('persona_id', $persona->id)->count() + 1);
+
+            if ($cliente) {
+                $cliente->update([
+                    'direccion' => $fullDireccion,
+                    'alias' => !empty($validated['alias']) ? trim($validated['alias']) : ($cliente->alias ?: $alias),
+                ]);
+            } else {
+                $cliente = Cliente::create([
+                    'direccion' => $fullDireccion,
+                    'alias' => $alias,
+                    'persona_id' => $persona->id,
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => '¡Dirección guardada exitosamente!',
+                'data' => [
+                    'id' => $cliente->id,
+                    'alias' => $cliente->alias ?: 'Dirección',
+                    'direccion_completa' => $cliente->direccion,
+                    'direccion' => $validated['direccion'],
+                    'ciudad' => $validated['ciudad'],
+                    'departamento' => $validated['departamento'],
+                    'nombre' => $persona->nombre_persona,
+                    'telefono' => $persona->telefono,
+                    'documento' => $persona->documento,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pudo guardar la dirección: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Elimina una dirección guardada del cliente.
+     */
+    public function eliminarDireccion($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'No autorizado.'], 401);
+        }
+
+        try {
+            $personaId = $user->persona_id;
+            if (!$personaId) {
+                $persona = Persona::where('nombre_persona', $user->name)->latest('id')->first();
+                $personaId = $persona ? $persona->id : null;
+            }
+
+            if (!$personaId) {
+                return response()->json(['success' => false, 'message' => 'Perfil no encontrado.'], 404);
+            }
+
+            $cliente = Cliente::where('persona_id', $personaId)->find($id);
+            if (!$cliente) {
+                return response()->json(['success' => false, 'message' => 'Dirección no encontrada.'], 404);
+            }
+
+            $cliente->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => '¡Dirección eliminada correctamente!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar la dirección: ' . $e->getMessage()
+            ], 500);
         }
     }
 
